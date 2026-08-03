@@ -306,8 +306,8 @@ function showGameScreen() {
 }
 
 function createCardHTML(cardData, isPlayed) {
-    // Kart boyutlarını mobilde butonlara çakışmayacak şekilde w-16 h-26 boyutuna getirdik
-    let baseClasses = `relative w-16 h-26 flex-shrink-0 rounded-lg border-[2px] border-white shadow-md flex items-center justify-center text-white transition-all transform ${getTailwindColor(cardData.color)}`;
+    // KESİN PİKSEL DEĞERLERİ: Tailwind sınıf hatalarını önlemek için sabit piksel (64x96) kullanıldı.
+    let baseClasses = `relative w-[64px] h-[96px] flex-shrink-0 rounded-lg border-[2px] border-white shadow-md flex items-center justify-center text-white transition-all transform ${getTailwindColor(cardData.color)}`;
     
     if (isPlayed) {
         baseClasses += ' opacity-50 cursor-not-allowed'; 
@@ -319,11 +319,11 @@ function createCardHTML(cardData, isPlayed) {
     
     return `
         <div class="${baseClasses}" onclick="${isPlayed ? '' : `playCard(${cardData.originalIndex})`}">
-            <span class="absolute top-1 left-1 text-[10px] font-black drop-shadow-md">${shortVal}</span>
-            <div class="w-4/5 h-4/5 rounded-[50%] border-[1.5px] border-white/30 flex items-center justify-center bg-black/10 transform -rotate-12 shadow-inner">
+            <span class="absolute top-1 left-1.5 text-[10px] font-black drop-shadow-md">${shortVal}</span>
+            <div class="w-[45px] h-[70px] rounded-[50%] border-[1.5px] border-white/30 flex items-center justify-center bg-black/10 transform -rotate-12 shadow-inner">
                 <span class="transform rotate-12 drop-shadow-md text-xl font-black">${cardData.value}</span>
             </div>
-            <span class="absolute bottom-1 right-1 text-[10px] font-black drop-shadow-md rotate-180">${shortVal}</span>
+            <span class="absolute bottom-1 right-1.5 text-[10px] font-black drop-shadow-md rotate-180">${shortVal}</span>
         </div>
     `;
 }
@@ -332,32 +332,31 @@ function renderGameArea() {
     const currentPlayer = players[currentPlayerIndex];
     document.getElementById('currentPlayerName').innerText = currentPlayer.id;
 
-    // Ortadaki kart
+    // Ortadaki kart (80x120 Piksel Sabit)
     const topCard = discardPile[discardPile.length - 1];
     const topCardDiv = document.getElementById('topCard');
-    topCardDiv.className = `relative w-20 h-30 rounded-xl border-[3px] border-white shadow-[4px_4px_10px_rgba(0,0,0,0.3)] flex items-center justify-center text-white transform -rotate-3 transition-all ${getTailwindColor(topCard.color)}`;
+    topCardDiv.className = `relative w-[80px] h-[120px] rounded-xl border-[3px] border-white shadow-[4px_4px_10px_rgba(0,0,0,0.3)] flex items-center justify-center text-white transform -rotate-3 transition-all ${getTailwindColor(topCard.color)}`;
     const topShortVal = topCard.value === 'Joker' ? '★' : topCard.value;
     topCardDiv.innerHTML = `
-        <span class="absolute top-1 left-1.5 text-xs font-black drop-shadow-md">${topShortVal}</span>
-        <div class="w-4/5 h-4/5 rounded-[50%] border-[2px] border-white/30 flex items-center justify-center bg-black/10 transform -rotate-12 shadow-inner">
-            <span class="transform rotate-12 drop-shadow-lg text-2xl font-black">${topCard.value}</span>
+        <span class="absolute top-1.5 left-2 text-xs font-black drop-shadow-md">${topShortVal}</span>
+        <div class="w-[60px] h-[90px] rounded-[50%] border-[2px] border-white/30 flex items-center justify-center bg-black/10 transform -rotate-12 shadow-inner">
+            <span class="transform rotate-12 drop-shadow-lg text-3xl font-black">${topCard.value}</span>
         </div>
-        <span class="absolute bottom-1 right-1.5 text-xs font-black drop-shadow-md rotate-180">${topShortVal}</span>
+        <span class="absolute bottom-1.5 right-2 text-xs font-black drop-shadow-md rotate-180">${topShortVal}</span>
     `;
 
-    // Deste (Kart Çekme)
+    // Deste / Kart Çekme Butonu (80x120 Piksel Sabit)
     const drawBtn = document.getElementById('drawCardBtn');
     if (activePenalty > 0 && !hasPlayedThisTurn) {
         drawBtn.innerHTML = `<span class="text-white font-black text-center text-[10px] drop-shadow-md">CEZAYI ÇEK<br>(+${activePenalty})</span>`;
-        drawBtn.classList.remove('bg-gray-800');
-        drawBtn.classList.add('bg-red-600', 'animate-pulse', 'border-[2px]', 'border-white', 'shadow-xl');
+        drawBtn.className = 'relative w-[80px] h-[120px] rounded-xl border-[3px] border-white shadow-xl flex items-center justify-center cursor-pointer bg-red-600 animate-pulse';
     } else {
         drawBtn.innerHTML = `
-            <div class="w-full h-full rounded-[50%] border-[2px] border-red-500/50 flex items-center justify-center bg-black/30 transform -rotate-12">
+            <div class="w-[60px] h-[90px] rounded-[50%] border-[2px] border-red-500/50 flex items-center justify-center bg-black/30 transform -rotate-12">
                 <span class="text-yellow-400 font-black transform rotate-[-30deg] text-lg tracking-widest drop-shadow-[2px_2px_0_rgba(255,0,0,1)]">UNO</span>
             </div>
         `;
-        drawBtn.className = 'w-20 h-30 bg-gray-900 rounded-xl border-[3px] border-white shadow-lg flex items-center justify-center cursor-pointer hover:-translate-y-1 transition-transform';
+        drawBtn.className = 'w-[80px] h-[120px] bg-gray-900 rounded-xl border-[3px] border-white shadow-lg flex items-center justify-center cursor-pointer hover:-translate-y-1 transition-transform';
     }
 
     // Eldeki kartların düzenlenmesi
@@ -381,20 +380,20 @@ function renderGameArea() {
     normalCards.sort(sortLogic);
     specialCards.sort(sortLogic);
 
-    // Kart gruplarını alt alta ve alt boşluk bırakacak şekilde düzenleme
+    // Satır minimum yüksekliği kartlara uyumlu hale getirildi (min-h-[110px])
     handContainer.innerHTML = `
         <div class="w-full flex flex-col gap-2 mb-2">
             ${normalCards.length > 0 ? `
                 <div class="w-full">
                     <p class="text-[11px] text-gray-500 font-bold mb-0.5 uppercase tracking-wider text-left">SAYI KARTLARI (${normalCards.length})</p>
-                    <div id="normalCardsRow" class="flex flex-row overflow-x-auto pt-1 pb-3 px-1 w-full items-center justify-start min-h-[115px] scrollbar-none"></div>
+                    <div id="normalCardsRow" class="flex flex-row overflow-x-auto pt-1 pb-3 px-1 w-full items-center justify-start min-h-[110px] scrollbar-none"></div>
                 </div>
             ` : ''}
             
             ${specialCards.length > 0 ? `
                 <div class="w-full">
                     <p class="text-[11px] text-gray-500 font-bold mb-0.5 uppercase tracking-wider text-left">ÖZEL KARTLAR (${specialCards.length})</p>
-                    <div id="specialCardsRow" class="flex flex-row overflow-x-auto pt-1 pb-3 px-1 w-full items-center justify-start min-h-[115px] scrollbar-none"></div>
+                    <div id="specialCardsRow" class="flex flex-row overflow-x-auto pt-1 pb-3 px-1 w-full items-center justify-start min-h-[110px] scrollbar-none"></div>
                 </div>
             ` : ''}
         </div>
