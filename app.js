@@ -1,6 +1,11 @@
 // --- 1. KART DESTE SİSTEMİ ---
 const colors = ['red', 'blue', 'green', 'yellow'];
 const values = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'Pas', 'Yön', '+2'];
+const specialValues = ['Pas', 'Yön', '+2', '+4', 'Joker'];
+
+// Renk ve değer sıralaması için referans
+const colorOrder = { 'red': 1, 'blue': 2, 'green': 3, 'yellow': 4, 'black': 5 };
+const valOrder = { '0':0, '1':1, '2':2, '3':3, '4':4, '5':5, '6':6, '7':7, '8':8, '9':9, 'Pas':10, 'Yön':11, '+2':12, '+4':13, 'Joker':14 };
 
 let deck = [];
 let players = [];
@@ -40,7 +45,6 @@ function shuffle(deckToShuffle) {
     return deckToShuffle;
 }
 
-// YENİ: Kartlara gradient ve daha derin renkler ekledik
 function getTailwindColor(colorName) {
     switch(colorName) {
         case 'red': return 'bg-gradient-to-br from-red-500 to-red-700';
@@ -83,27 +87,34 @@ playerBtns.forEach(btn => {
 
 document.addEventListener("DOMContentLoaded", () => {
     const endTurnBtn = document.getElementById('endTurnBtn');
+    
+    // YENİ: UNO Butonu ve Hamleyi Bitir Butonu çakışmasını önlemek için kapsayıcı (Wrapper)
     if (endTurnBtn && !document.getElementById('unoBtn')) {
+        const actionWrapper = document.createElement('div');
+        actionWrapper.className = 'w-full flex flex-col gap-4 mt-6 px-4';
+        
+        endTurnBtn.parentNode.insertBefore(actionWrapper, endTurnBtn);
+        
         const unoBtn = document.createElement('button');
         unoBtn.id = 'unoBtn';
-        unoBtn.className = 'bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-white font-black py-2 px-6 rounded-xl shadow-lg mr-4 border-2 border-white transition-all transform active:scale-95 text-lg tracking-widest';
+        unoBtn.className = 'w-full bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-white font-black py-4 rounded-xl shadow-lg border-2 border-white transition-all transform active:scale-95 text-xl tracking-widest';
         unoBtn.innerText = 'UNO!';
         
-        // YENİ: Çok kart varken basmayı engelleyen kural
         unoBtn.onclick = () => {
             const currentPlayer = players[currentPlayerIndex];
-            
-            // Eğer oyuncunun 2'den fazla kartı varsa UNO demesini engelle
             if (currentPlayer.hand.length > 2) {
                 alert("Henüz çok fazla kartın var, UNO diyemezsin!");
                 return;
             }
-
             hasSaidUno = true;
             unoBtn.classList.add('opacity-50', 'cursor-not-allowed');
             unoBtn.innerText = 'UNO Dendi!';
         };
-        endTurnBtn.parentNode.insertBefore(unoBtn, endTurnBtn);
+        
+        // Butonları yeni hiyerarşiye taşıyoruz
+        actionWrapper.appendChild(unoBtn);
+        actionWrapper.appendChild(endTurnBtn);
+        endTurnBtn.className = "w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl shadow-lg transition-transform active:scale-95 text-lg";
     }
 });
 
@@ -159,14 +170,14 @@ function advanceTurn(steps = 1) {
     showPassScreen();
 }
 
-function playCard(index) {
+function playCard(originalIndex) {
     if (hasPlayedThisTurn) {
         alert("Bu elde zaten bir kart oynadınız! Hamleyi tamamlamak için 'Hamleyi Bitir' butonuna basın.");
         return;
     }
 
     const currentPlayer = players[currentPlayerIndex];
-    const cardToPlay = currentPlayer.hand[index];
+    const cardToPlay = currentPlayer.hand[originalIndex];
     const topCard = discardPile[discardPile.length - 1];
 
     if (activePenalty > 0) {
@@ -181,7 +192,7 @@ function playCard(index) {
                 activePenalty += 2;
             }
 
-            currentPlayer.hand.splice(index, 1);
+            currentPlayer.hand.splice(originalIndex, 1);
             discardPile.push(cardToPlay);
             
             hasPlayedThisTurn = true;
@@ -207,7 +218,7 @@ function playCard(index) {
             cardToPlay.color = gecerliRenkler.includes(secilenRenk) ? secilenRenk : 'red';
         }
 
-        currentPlayer.hand.splice(index, 1);
+        currentPlayer.hand.splice(originalIndex, 1);
         discardPile.push(cardToPlay);
         hasPlayedThisTurn = true; 
 
@@ -297,65 +308,114 @@ function showGameScreen() {
     renderGameArea();
 }
 
+function createCardHTML(cardData, isPlayed) {
+    let baseClasses = `relative w-24 h-36 flex-shrink-0 rounded-2xl border-[4px] border-white shadow-xl flex items-center justify-center text-white transition-all transform ${getTailwindColor(cardData.color)}`;
+    
+    if (isPlayed) {
+        baseClasses += ' opacity-50 cursor-not-allowed'; 
+    } else {
+        baseClasses += ' cursor-pointer hover:-translate-y-6 hover:shadow-2xl z-10 hover:z-50'; 
+    }
+
+    // YENİ: Köşe değerleri (Sol üst ve Sağ alt) ve Merkez tasarım
+    const shortVal = cardData.value === 'Joker' ? '★' : cardData.value;
+    
+    return `
+        <div class="${baseClasses}" onclick="${isPlayed ? '' : `playCard(${cardData.originalIndex})`}">
+            <span class="absolute top-2 left-2 text-sm font-black drop-shadow-md">${shortVal}</span>
+            <div class="w-4/5 h-5/6 rounded-[50%] border-[2px] border-white/30 flex items-center justify-center bg-black/10 transform -rotate-12 shadow-inner">
+                <span class="transform rotate-12 drop-shadow-md text-3xl font-black">${cardData.value}</span>
+            </div>
+            <span class="absolute bottom-2 right-2 text-sm font-black drop-shadow-md rotate-180">${shortVal}</span>
+        </div>
+    `;
+}
+
 function renderGameArea() {
     const currentPlayer = players[currentPlayerIndex];
     document.getElementById('currentPlayerName').innerText = currentPlayer.id;
 
+    // Ortadaki kart
     const topCard = discardPile[discardPile.length - 1];
     const topCardDiv = document.getElementById('topCard');
-    
-    // YENİ: Ortadaki kartın (Discard Pile) görsel revizyonu. Deste hissi için gölgeler ve eğim eklendi.
-    topCardDiv.className = `relative w-32 h-48 rounded-2xl border-[6px] border-white shadow-[6px_6px_15px_rgba(0,0,0,0.3)] flex items-center justify-center text-white transform -rotate-2 transition-all ${getTailwindColor(topCard.color)}`;
-    
-    // YENİ: Gerçek UNO kartlarındaki elips/oval iç tasarım
+    topCardDiv.className = `relative w-28 h-40 rounded-2xl border-[6px] border-white shadow-[6px_6px_15px_rgba(0,0,0,0.3)] flex items-center justify-center text-white transform -rotate-3 transition-all ${getTailwindColor(topCard.color)}`;
+    const topShortVal = topCard.value === 'Joker' ? '★' : topCard.value;
     topCardDiv.innerHTML = `
+        <span class="absolute top-2 left-2 text-sm font-black drop-shadow-md">${topShortVal}</span>
         <div class="w-4/5 h-5/6 rounded-[50%] border-[3px] border-white/30 flex items-center justify-center bg-black/10 transform -rotate-12 shadow-inner">
-            <span class="transform rotate-12 drop-shadow-lg text-5xl font-black">${topCard.value}</span>
+            <span class="transform rotate-12 drop-shadow-lg text-4xl font-black">${topCard.value}</span>
         </div>
+        <span class="absolute bottom-2 right-2 text-sm font-black drop-shadow-md rotate-180">${topShortVal}</span>
     `;
 
+    // Deste (Kart Çekme)
     const drawBtn = document.getElementById('drawCardBtn');
-    
     if (activePenalty > 0 && !hasPlayedThisTurn) {
         drawBtn.innerHTML = `<span class="text-white font-black text-center text-sm drop-shadow-md">CEZAYI ÇEK<br>(+${activePenalty})</span>`;
         drawBtn.classList.remove('bg-gray-800');
         drawBtn.classList.add('bg-red-600', 'animate-pulse', 'border-[4px]', 'border-white', 'shadow-xl');
     } else {
-        // Kapalı deste tasarımı
         drawBtn.innerHTML = `
             <div class="w-full h-full rounded-[50%] border-[2px] border-red-500/50 flex items-center justify-center bg-black/30 transform -rotate-12">
                 <span class="text-yellow-400 font-black transform rotate-[-30deg] text-2xl tracking-widest drop-shadow-[2px_2px_0_rgba(255,0,0,1)]">UNO</span>
             </div>
         `;
-        drawBtn.className = 'w-24 h-36 bg-gray-900 rounded-2xl border-[6px] border-white shadow-[4px_4px_10px_rgba(0,0,0,0.4)] flex items-center justify-center cursor-pointer hover:-translate-y-2 transition-transform';
+        drawBtn.className = 'w-24 h-36 bg-gray-900 rounded-2xl border-[4px] border-white shadow-lg flex items-center justify-center cursor-pointer hover:-translate-y-2 transition-transform';
     }
 
+    // YENİ: Kartları Sıralama ve Gruplama (Renk, Sayı, Normal/Özel)
     const handContainer = document.getElementById('playerHand');
-    handContainer.innerHTML = ''; 
     
-    currentPlayer.hand.forEach((card, index) => {
-        const cardDiv = document.createElement('div');
-        
-        // YENİ: Eldeki kartların boyutları ve UNO tasarımı
-        let baseClasses = `relative w-24 h-36 rounded-2xl border-[5px] border-white shadow-xl flex items-center justify-center text-white transition-all transform ${getTailwindColor(card.color)}`;
-        
-        if (hasPlayedThisTurn) {
-            baseClasses += ' opacity-50 cursor-not-allowed'; 
-        } else {
-            baseClasses += ' cursor-pointer hover:-translate-y-4 hover:shadow-2xl z-10 hover:z-20'; 
-            cardDiv.onclick = () => playCard(index);
-        }
+    // Orijinal indeksleri kaybetmemek için map ile eşleştiriyoruz
+    const handWithOriginalIndices = currentPlayer.hand.map((card, index) => ({ ...card, originalIndex: index }));
+    
+    const normalCards = [];
+    const specialCards = [];
 
-        cardDiv.className = baseClasses;
+    handWithOriginalIndices.forEach(card => {
+        if (specialValues.includes(card.value)) specialCards.push(card);
+        else normalCards.push(card);
+    });
+
+    const sortLogic = (a, b) => {
+        if (colorOrder[a.color] !== colorOrder[b.color]) return colorOrder[a.color] - colorOrder[b.color];
+        return valOrder[a.value] - valOrder[b.value];
+    };
+
+    normalCards.sort(sortLogic);
+    specialCards.sort(sortLogic);
+
+    // Kapsayıcıyı yeniden oluştur
+    handContainer.innerHTML = `
+        <div class="w-full max-w-full overflow-hidden mb-6">
+            <p class="text-sm text-gray-500 font-bold mb-2 uppercase tracking-wide">Sayı Kartları</p>
+            <div id="normalCardsRow" class="flex flex-row overflow-x-auto pb-6 pt-4 px-2 w-full custom-scrollbar items-center justify-start sm:justify-center"></div>
+        </div>
         
-        // Eldeki kartların iç oval tasarımı
-        cardDiv.innerHTML = `
-            <div class="w-4/5 h-5/6 rounded-[50%] border-[2px] border-white/30 flex items-center justify-center bg-black/10 transform -rotate-12 shadow-inner">
-                <span class="transform rotate-12 drop-shadow-md text-3xl font-black">${card.value}</span>
-            </div>
-        `;
-        
-        handContainer.appendChild(cardDiv);
+        <div class="w-full max-w-full overflow-hidden">
+            <p class="text-sm text-gray-500 font-bold mb-2 uppercase tracking-wide">Özel Kartlar</p>
+            <div id="specialCardsRow" class="flex flex-row overflow-x-auto pb-6 pt-4 px-2 w-full custom-scrollbar items-center justify-start sm:justify-center"></div>
+        </div>
+    `;
+
+    const normalRow = document.getElementById('normalCardsRow');
+    const specialRow = document.getElementById('specialCardsRow');
+
+    // Deste yelpazesi hissi için her karta ardışık negatif sol margin (ml) ekliyoruz
+    normalCards.forEach((card, i) => {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = createCardHTML(card, hasPlayedThisTurn);
+        const cardElement = tempDiv.firstElementChild;
+        if (i > 0) cardElement.classList.add('-ml-10'); // Üst üste binme efekti
+        normalRow.appendChild(cardElement);
+    });
+
+    specialCards.forEach((card, i) => {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = createCardHTML(card, hasPlayedThisTurn);
+        const cardElement = tempDiv.firstElementChild;
+        if (i > 0) cardElement.classList.add('-ml-10'); 
+        specialRow.appendChild(cardElement);
     });
 }
 
