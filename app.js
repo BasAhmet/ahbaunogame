@@ -111,7 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         actionWrapper.appendChild(unoBtn);
         actionWrapper.appendChild(endTurnBtn);
-        endTurnBtn.className = "w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow-lg transition-transform active:scale-95 text-lg";
+        endTurnBtn.className = "w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg shadow-lg transition-transform active:scale-95 text-lg";
     }
 });
 
@@ -288,7 +288,7 @@ document.getElementById('drawCardBtn').addEventListener('click', () => {
     renderGameArea();
 });
 
-// --- 4. EKRAN YÖNETİMİ VE DÜZELTİLMİŞ TASARIM ---
+// --- 4. EKRAN YÖNETİMİ VE MÜKEMMEL KAYDIRMA TASARIMI ---
 
 function showPassScreen() {
     document.getElementById('gameScreen').classList.add('hidden');
@@ -306,24 +306,26 @@ function showGameScreen() {
 }
 
 function createCardHTML(cardData, isPlayed) {
-    // DÜZELTME: Kartların tarayıcı tarafından sıkıştırılmasını engellemek için min-w-[64px] eklendi
-    let baseClasses = `relative w-[64px] min-w-[64px] h-[96px] flex-shrink-0 rounded-lg border-[2px] border-white shadow-md flex items-center justify-center text-white transition-all transform ${getTailwindColor(cardData.color)}`;
+    // DÜZELTME 1: relative yerine absolute kullanıldı. Eksi margin (-ml) tamamen iptal edildi.
+    let baseClasses = `absolute top-0 left-0 w-[64px] h-[96px] rounded-lg border-[2px] border-white shadow-md flex items-center justify-center text-white transition-all duration-200 transform ${getTailwindColor(cardData.color)}`;
     
     if (isPlayed) {
         baseClasses += ' opacity-50 cursor-not-allowed'; 
     } else {
-        baseClasses += ' cursor-pointer hover:-translate-y-2 hover:shadow-xl z-10 hover:z-50'; 
+        // DÜZELTME 2: Hover durumunda kartı öne çıkarmak için z-20 ve z-50 eklendi.
+        baseClasses += ' cursor-pointer hover:-translate-y-4 hover:shadow-[0_10px_20px_rgba(0,0,0,0.5)] z-20 hover:z-50'; 
     }
 
     const shortVal = cardData.value === 'Joker' ? '★' : cardData.value;
     
+    // İç elementlere pointer-events-none eklenerek tıklama hatalarının önüne geçildi
     return `
         <div class="${baseClasses}" onclick="${isPlayed ? '' : `playCard(${cardData.originalIndex})`}">
-            <span class="absolute top-1 left-1.5 text-[10px] font-black drop-shadow-md">${shortVal}</span>
-            <div class="w-[45px] h-[70px] rounded-[50%] border-[1.5px] border-white/30 flex items-center justify-center bg-black/10 transform -rotate-12 shadow-inner">
+            <span class="absolute top-1 left-1.5 text-[10px] font-black drop-shadow-md pointer-events-none">${shortVal}</span>
+            <div class="w-[45px] h-[70px] rounded-[50%] border-[1.5px] border-white/30 flex items-center justify-center bg-black/10 transform -rotate-12 shadow-inner pointer-events-none">
                 <span class="transform rotate-12 drop-shadow-md text-xl font-black">${cardData.value}</span>
             </div>
-            <span class="absolute bottom-1 right-1.5 text-[10px] font-black drop-shadow-md rotate-180">${shortVal}</span>
+            <span class="absolute bottom-1 right-1.5 text-[10px] font-black drop-shadow-md rotate-180 pointer-events-none">${shortVal}</span>
         </div>
     `;
 }
@@ -376,21 +378,25 @@ function renderGameArea() {
     normalCards.sort(sortLogic);
     specialCards.sort(sortLogic);
 
-    // DÜZELTME: Kapsayıcılara tam genişlik kısıtlaması (style="max-width: 100%; overflow: hidden;") eklendi
-    // DÜZELTME: overflow-y-visible kaldırıldı (yatay scroll'u bozduğu için) ve alan yüksekliği artırıldı (min-h-[130px])
+    // DÜZELTME 3: Kartların kapsayıcı div'ine w-max verildi. 
+    // Kart yüksekliği üstten taşma yapmasın diye h-[120px] ve items-end kullanıldı.
     handContainer.innerHTML = `
-        <div class="w-full flex flex-col gap-4 mb-8" style="max-width: 100%; overflow: hidden;">
+        <div class="w-full flex flex-col gap-2 mb-8">
             ${normalCards.length > 0 ? `
-                <div class="w-full" style="max-width: 100%;">
+                <div class="w-full">
                     <p class="text-[11px] text-gray-500 font-bold mb-1 uppercase tracking-wider text-left pl-1">SAYI KARTLARI (${normalCards.length})</p>
-                    <div id="normalCardsRow" class="flex flex-row flex-nowrap overflow-x-auto pt-4 pb-6 px-2 w-full items-center justify-start min-h-[130px] scroll-smooth" style="max-width: 100%; -webkit-overflow-scrolling: touch;"></div>
+                    <div class="w-full overflow-x-auto scroll-smooth pb-2 pt-2">
+                        <div id="normalCardsRow" class="flex flex-row items-end justify-start h-[120px] px-2 w-max pr-6"></div>
+                    </div>
                 </div>
             ` : ''}
             
             ${specialCards.length > 0 ? `
-                <div class="w-full" style="max-width: 100%;">
+                <div class="w-full">
                     <p class="text-[11px] text-gray-500 font-bold mb-1 uppercase tracking-wider text-left pl-1">ÖZEL KARTLAR (${specialCards.length})</p>
-                    <div id="specialCardsRow" class="flex flex-row flex-nowrap overflow-x-auto pt-4 pb-6 px-2 w-full items-center justify-start min-h-[130px] scroll-smooth" style="max-width: 100%; -webkit-overflow-scrolling: touch;"></div>
+                    <div class="w-full overflow-x-auto scroll-smooth pb-2 pt-2">
+                        <div id="specialCardsRow" class="flex flex-row items-end justify-start h-[120px] px-2 w-max pr-6"></div>
+                    </div>
                 </div>
             ` : ''}
         </div>
@@ -401,31 +407,30 @@ function renderGameArea() {
 
     if (normalRow) {
         normalCards.forEach((card, i) => {
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = createCardHTML(card, hasPlayedThisTurn);
-            const cardElement = tempDiv.firstElementChild;
-            if (i > 0) cardElement.classList.add('-ml-6'); 
-            normalRow.appendChild(cardElement);
+            const isLast = i === normalCards.length - 1;
+            const wrapperDiv = document.createElement('div');
+            
+            // DÜZELTME 4: Eksi margin yerine, kartlar 35px'lik görünmez taşıyıcılara oturtuldu. 
+            // Sadece en son kart tam 64px alarak taşmayı %100 önlüyor.
+            wrapperDiv.className = `relative h-[96px] flex-shrink-0`;
+            wrapperDiv.style.width = isLast ? '64px' : '35px';
+            
+            wrapperDiv.innerHTML = createCardHTML(card, hasPlayedThisTurn);
+            normalRow.appendChild(wrapperDiv);
         });
-        
-        // DÜZELTME: Tarayıcının genişliği eksik hesaplamaması için sona kesin ve geniş bir görünmez boşluk eklendi
-        const spacer = document.createElement('div');
-        spacer.className = "min-w-[48px] w-[48px] h-1 flex-shrink-0 bg-transparent";
-        normalRow.appendChild(spacer);
     }
 
     if (specialRow) {
         specialCards.forEach((card, i) => {
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = createCardHTML(card, hasPlayedThisTurn);
-            const cardElement = tempDiv.firstElementChild;
-            if (i > 0) cardElement.classList.add('-ml-6'); 
-            specialRow.appendChild(cardElement);
+            const isLast = i === specialCards.length - 1;
+            const wrapperDiv = document.createElement('div');
+            
+            wrapperDiv.className = `relative h-[96px] flex-shrink-0`;
+            wrapperDiv.style.width = isLast ? '64px' : '35px';
+            
+            wrapperDiv.innerHTML = createCardHTML(card, hasPlayedThisTurn);
+            specialRow.appendChild(wrapperDiv);
         });
-        
-        const spacer = document.createElement('div');
-        spacer.className = "min-w-[48px] w-[48px] h-1 flex-shrink-0 bg-transparent";
-        specialRow.appendChild(spacer);
     }
 }
 
