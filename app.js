@@ -360,6 +360,7 @@ function renderGameArea() {
     }
 
     // Eldeki kartların düzenlenmesi
+// Eldeki kartların düzenlenmesi
     const handContainer = document.getElementById('playerHand');
     
     const handWithOriginalIndices = currentPlayer.hand.map((card, index) => ({ ...card, originalIndex: index }));
@@ -380,20 +381,20 @@ function renderGameArea() {
     normalCards.sort(sortLogic);
     specialCards.sort(sortLogic);
 
-    // Satır minimum yüksekliği kartlara uyumlu hale getirildi (min-h-[110px])
+    // DÜZELTME 1: Kapsayıcılara 'max-w-full' ve 'min-w-0' eklendi.
     handContainer.innerHTML = `
-        <div class="w-full flex flex-col gap-4 mb-8">
+        <div class="w-full max-w-full min-w-0 flex flex-col gap-4 mb-8">
             ${normalCards.length > 0 ? `
-                <div class="w-full">
-                    <p class="text-[11px] text-gray-500 font-bold mb-1 uppercase tracking-wider text-left">SAYI KARTLARI (${normalCards.length})</p>
-                    <div id="normalCardsRow" class="flex flex-row overflow-x-auto pt-2 pb-4 px-1 w-full items-center justify-start min-h-[120px] scrollbar-none"></div>
+                <div class="w-full max-w-full min-w-0">
+                    <p class="text-[11px] text-gray-500 font-bold mb-1 uppercase tracking-wider text-left pl-1">SAYI KARTLARI (${normalCards.length})</p>
+                    <div id="normalCardsRow" class="flex flex-row overflow-x-auto overflow-y-visible pt-2 pb-4 px-1 w-full max-w-full items-center justify-start min-h-[120px] scroll-smooth hide-scrollbar"></div>
                 </div>
             ` : ''}
             
             ${specialCards.length > 0 ? `
-                <div class="w-full">
-                    <p class="text-[11px] text-gray-500 font-bold mb-1 uppercase tracking-wider text-left">ÖZEL KARTLAR (${specialCards.length})</p>
-                    <div id="specialCardsRow" class="flex flex-row overflow-x-auto pt-2 pb-4 px-1 w-full items-center justify-start min-h-[120px] scrollbar-none"></div>
+                <div class="w-full max-w-full min-w-0">
+                    <p class="text-[11px] text-gray-500 font-bold mb-1 uppercase tracking-wider text-left pl-1">ÖZEL KARTLAR (${specialCards.length})</p>
+                    <div id="specialCardsRow" class="flex flex-row overflow-x-auto overflow-y-visible pt-2 pb-4 px-1 w-full max-w-full items-center justify-start min-h-[120px] scroll-smooth hide-scrollbar"></div>
                 </div>
             ` : ''}
         </div>
@@ -410,6 +411,11 @@ function renderGameArea() {
             if (i > 0) cardElement.classList.add('-ml-6'); 
             normalRow.appendChild(cardElement);
         });
+        
+        // DÜZELTME 2: Tarayıcının sağ tarafı kesmemesi için sona görünmez esnek boşluk (spacer) eklendi
+        const spacer = document.createElement('div');
+        spacer.className = "w-8 h-1 flex-shrink-0";
+        normalRow.appendChild(spacer);
     }
 
     if (specialRow) {
@@ -420,6 +426,12 @@ function renderGameArea() {
             if (i > 0) cardElement.classList.add('-ml-6'); 
             specialRow.appendChild(cardElement);
         });
+        
+        // Aynı boşluk özel kartlar için de eklendi
+        const spacer = document.createElement('div');
+        spacer.className = "w-8 h-1 flex-shrink-0";
+        specialRow.appendChild(spacer);
+    }
     }
 }
 
