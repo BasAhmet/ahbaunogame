@@ -306,7 +306,6 @@ function showGameScreen() {
 }
 
 function createCardHTML(cardData, isPlayed) {
-    // KESİN PİKSEL DEĞERLERİ: Tailwind sınıf hatalarını önlemek için sabit piksel (64x96) kullanıldı.
     let baseClasses = `relative w-[64px] h-[96px] flex-shrink-0 rounded-lg border-[2px] border-white shadow-md flex items-center justify-center text-white transition-all transform ${getTailwindColor(cardData.color)}`;
     
     if (isPlayed) {
@@ -332,7 +331,6 @@ function renderGameArea() {
     const currentPlayer = players[currentPlayerIndex];
     document.getElementById('currentPlayerName').innerText = currentPlayer.id;
 
-    // Ortadaki kart (80x120 Piksel Sabit)
     const topCard = discardPile[discardPile.length - 1];
     const topCardDiv = document.getElementById('topCard');
     topCardDiv.className = `relative w-[80px] h-[120px] rounded-xl border-[3px] border-white shadow-[4px_4px_10px_rgba(0,0,0,0.3)] flex items-center justify-center text-white transform -rotate-3 transition-all ${getTailwindColor(topCard.color)}`;
@@ -345,7 +343,6 @@ function renderGameArea() {
         <span class="absolute bottom-1.5 right-2 text-xs font-black drop-shadow-md rotate-180">${topShortVal}</span>
     `;
 
-    // Deste / Kart Çekme Butonu (80x120 Piksel Sabit)
     const drawBtn = document.getElementById('drawCardBtn');
     if (activePenalty > 0 && !hasPlayedThisTurn) {
         drawBtn.innerHTML = `<span class="text-white font-black text-center text-[10px] drop-shadow-md">CEZAYI ÇEK<br>(+${activePenalty})</span>`;
@@ -359,10 +356,7 @@ function renderGameArea() {
         drawBtn.className = 'w-[80px] h-[120px] bg-gray-900 rounded-xl border-[3px] border-white shadow-lg flex items-center justify-center cursor-pointer hover:-translate-y-1 transition-transform';
     }
 
-    // Eldeki kartların düzenlenmesi
-// Eldeki kartların düzenlenmesi
     const handContainer = document.getElementById('playerHand');
-    
     const handWithOriginalIndices = currentPlayer.hand.map((card, index) => ({ ...card, originalIndex: index }));
     
     const normalCards = [];
@@ -381,20 +375,20 @@ function renderGameArea() {
     normalCards.sort(sortLogic);
     specialCards.sort(sortLogic);
 
-    // DÜZELTME 1: Kapsayıcılara 'max-w-full' ve 'min-w-0' eklendi.
+    // Kapsayıcılara max-w-full ve min-w-0 eklendi
     handContainer.innerHTML = `
         <div class="w-full max-w-full min-w-0 flex flex-col gap-4 mb-8">
             ${normalCards.length > 0 ? `
                 <div class="w-full max-w-full min-w-0">
                     <p class="text-[11px] text-gray-500 font-bold mb-1 uppercase tracking-wider text-left pl-1">SAYI KARTLARI (${normalCards.length})</p>
-                    <div id="normalCardsRow" class="flex flex-row overflow-x-auto overflow-y-visible pt-2 pb-4 px-1 w-full max-w-full items-center justify-start min-h-[120px] scroll-smooth hide-scrollbar"></div>
+                    <div id="normalCardsRow" class="flex flex-row flex-nowrap overflow-x-auto overflow-y-visible pt-2 pb-4 px-1 w-full max-w-full items-center justify-start min-h-[120px] scroll-smooth hide-scrollbar"></div>
                 </div>
             ` : ''}
             
             ${specialCards.length > 0 ? `
                 <div class="w-full max-w-full min-w-0">
                     <p class="text-[11px] text-gray-500 font-bold mb-1 uppercase tracking-wider text-left pl-1">ÖZEL KARTLAR (${specialCards.length})</p>
-                    <div id="specialCardsRow" class="flex flex-row overflow-x-auto overflow-y-visible pt-2 pb-4 px-1 w-full max-w-full items-center justify-start min-h-[120px] scroll-smooth hide-scrollbar"></div>
+                    <div id="specialCardsRow" class="flex flex-row flex-nowrap overflow-x-auto overflow-y-visible pt-2 pb-4 px-1 w-full max-w-full items-center justify-start min-h-[120px] scroll-smooth hide-scrollbar"></div>
                 </div>
             ` : ''}
         </div>
@@ -412,7 +406,6 @@ function renderGameArea() {
             normalRow.appendChild(cardElement);
         });
         
-        // DÜZELTME 2: Tarayıcının sağ tarafı kesmemesi için sona görünmez esnek boşluk (spacer) eklendi
         const spacer = document.createElement('div');
         spacer.className = "w-8 h-1 flex-shrink-0";
         normalRow.appendChild(spacer);
@@ -427,7 +420,6 @@ function renderGameArea() {
             specialRow.appendChild(cardElement);
         });
         
-        // Aynı boşluk özel kartlar için de eklendi
         const spacer = document.createElement('div');
         spacer.className = "w-8 h-1 flex-shrink-0";
         specialRow.appendChild(spacer);
