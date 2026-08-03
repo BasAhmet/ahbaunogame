@@ -306,23 +306,24 @@ function showGameScreen() {
 }
 
 function createCardHTML(cardData, isPlayed) {
-    let baseClasses = `relative w-20 h-32 flex-shrink-0 rounded-xl border-[3px] border-white shadow-md flex items-center justify-center text-white transition-all transform ${getTailwindColor(cardData.color)}`;
+    // Kart boyutlarını mobilde butonlara çakışmayacak şekilde w-16 h-26 boyutuna getirdik
+    let baseClasses = `relative w-16 h-26 flex-shrink-0 rounded-lg border-[2px] border-white shadow-md flex items-center justify-center text-white transition-all transform ${getTailwindColor(cardData.color)}`;
     
     if (isPlayed) {
         baseClasses += ' opacity-50 cursor-not-allowed'; 
     } else {
-        baseClasses += ' cursor-pointer hover:-translate-y-4 hover:shadow-xl z-10 hover:z-50'; 
+        baseClasses += ' cursor-pointer hover:-translate-y-2 hover:shadow-xl z-10 hover:z-50'; 
     }
 
     const shortVal = cardData.value === 'Joker' ? '★' : cardData.value;
     
     return `
         <div class="${baseClasses}" onclick="${isPlayed ? '' : `playCard(${cardData.originalIndex})`}">
-            <span class="absolute top-1 left-1.5 text-xs font-black drop-shadow-md">${shortVal}</span>
-            <div class="w-4/5 h-5/6 rounded-[50%] border-[2px] border-white/30 flex items-center justify-center bg-black/10 transform -rotate-12 shadow-inner">
-                <span class="transform rotate-12 drop-shadow-md text-2xl font-black">${cardData.value}</span>
+            <span class="absolute top-1 left-1 text-[10px] font-black drop-shadow-md">${shortVal}</span>
+            <div class="w-4/5 h-4/5 rounded-[50%] border-[1.5px] border-white/30 flex items-center justify-center bg-black/10 transform -rotate-12 shadow-inner">
+                <span class="transform rotate-12 drop-shadow-md text-xl font-black">${cardData.value}</span>
             </div>
-            <span class="absolute bottom-1 right-1.5 text-xs font-black drop-shadow-md rotate-180">${shortVal}</span>
+            <span class="absolute bottom-1 right-1 text-[10px] font-black drop-shadow-md rotate-180">${shortVal}</span>
         </div>
     `;
 }
@@ -334,29 +335,29 @@ function renderGameArea() {
     // Ortadaki kart
     const topCard = discardPile[discardPile.length - 1];
     const topCardDiv = document.getElementById('topCard');
-    topCardDiv.className = `relative w-24 h-36 rounded-xl border-[4px] border-white shadow-[6px_6px_15px_rgba(0,0,0,0.3)] flex items-center justify-center text-white transform -rotate-3 transition-all ${getTailwindColor(topCard.color)}`;
+    topCardDiv.className = `relative w-20 h-30 rounded-xl border-[3px] border-white shadow-[4px_4px_10px_rgba(0,0,0,0.3)] flex items-center justify-center text-white transform -rotate-3 transition-all ${getTailwindColor(topCard.color)}`;
     const topShortVal = topCard.value === 'Joker' ? '★' : topCard.value;
     topCardDiv.innerHTML = `
-        <span class="absolute top-1.5 left-2 text-xs font-black drop-shadow-md">${topShortVal}</span>
-        <div class="w-4/5 h-5/6 rounded-[50%] border-[2px] border-white/30 flex items-center justify-center bg-black/10 transform -rotate-12 shadow-inner">
-            <span class="transform rotate-12 drop-shadow-lg text-3xl font-black">${topCard.value}</span>
+        <span class="absolute top-1 left-1.5 text-xs font-black drop-shadow-md">${topShortVal}</span>
+        <div class="w-4/5 h-4/5 rounded-[50%] border-[2px] border-white/30 flex items-center justify-center bg-black/10 transform -rotate-12 shadow-inner">
+            <span class="transform rotate-12 drop-shadow-lg text-2xl font-black">${topCard.value}</span>
         </div>
-        <span class="absolute bottom-1.5 right-2 text-xs font-black drop-shadow-md rotate-180">${topShortVal}</span>
+        <span class="absolute bottom-1 right-1.5 text-xs font-black drop-shadow-md rotate-180">${topShortVal}</span>
     `;
 
     // Deste (Kart Çekme)
     const drawBtn = document.getElementById('drawCardBtn');
     if (activePenalty > 0 && !hasPlayedThisTurn) {
-        drawBtn.innerHTML = `<span class="text-white font-black text-center text-xs drop-shadow-md">CEZAYI ÇEK<br>(+${activePenalty})</span>`;
+        drawBtn.innerHTML = `<span class="text-white font-black text-center text-[10px] drop-shadow-md">CEZAYI ÇEK<br>(+${activePenalty})</span>`;
         drawBtn.classList.remove('bg-gray-800');
-        drawBtn.classList.add('bg-red-600', 'animate-pulse', 'border-[3px]', 'border-white', 'shadow-xl');
+        drawBtn.classList.add('bg-red-600', 'animate-pulse', 'border-[2px]', 'border-white', 'shadow-xl');
     } else {
         drawBtn.innerHTML = `
             <div class="w-full h-full rounded-[50%] border-[2px] border-red-500/50 flex items-center justify-center bg-black/30 transform -rotate-12">
-                <span class="text-yellow-400 font-black transform rotate-[-30deg] text-xl tracking-widest drop-shadow-[2px_2px_0_rgba(255,0,0,1)]">UNO</span>
+                <span class="text-yellow-400 font-black transform rotate-[-30deg] text-lg tracking-widest drop-shadow-[2px_2px_0_rgba(255,0,0,1)]">UNO</span>
             </div>
         `;
-        drawBtn.className = 'w-20 h-32 bg-gray-900 rounded-xl border-[3px] border-white shadow-lg flex items-center justify-center cursor-pointer hover:-translate-y-2 transition-transform';
+        drawBtn.className = 'w-20 h-30 bg-gray-900 rounded-xl border-[3px] border-white shadow-lg flex items-center justify-center cursor-pointer hover:-translate-y-1 transition-transform';
     }
 
     // Eldeki kartların düzenlenmesi
@@ -380,20 +381,20 @@ function renderGameArea() {
     normalCards.sort(sortLogic);
     specialCards.sort(sortLogic);
 
-    // YENİ: Düzgün dikey hiyerarşi (Dışa ve alt butonlara taşmayı önler)
+    // Kart gruplarını alt alta ve alt boşluk bırakacak şekilde düzenleme
     handContainer.innerHTML = `
-        <div class="w-full flex flex-col gap-3">
+        <div class="w-full flex flex-col gap-2 mb-2">
             ${normalCards.length > 0 ? `
                 <div class="w-full">
-                    <p class="text-xs text-gray-500 font-bold mb-1 uppercase tracking-wider text-left">Sayı Kartları (${normalCards.length})</p>
-                    <div id="normalCardsRow" class="flex flex-row overflow-x-auto py-2 px-1 w-full items-center justify-start min-h-[140px] scrollbar-none"></div>
+                    <p class="text-[11px] text-gray-500 font-bold mb-0.5 uppercase tracking-wider text-left">SAYI KARTLARI (${normalCards.length})</p>
+                    <div id="normalCardsRow" class="flex flex-row overflow-x-auto pt-1 pb-3 px-1 w-full items-center justify-start min-h-[115px] scrollbar-none"></div>
                 </div>
             ` : ''}
             
             ${specialCards.length > 0 ? `
                 <div class="w-full">
-                    <p class="text-xs text-gray-500 font-bold mb-1 uppercase tracking-wider text-left">Özel Kartlar (${specialCards.length})</p>
-                    <div id="specialCardsRow" class="flex flex-row overflow-x-auto py-2 px-1 w-full items-center justify-start min-h-[140px] scrollbar-none"></div>
+                    <p class="text-[11px] text-gray-500 font-bold mb-0.5 uppercase tracking-wider text-left">ÖZEL KARTLAR (${specialCards.length})</p>
+                    <div id="specialCardsRow" class="flex flex-row overflow-x-auto pt-1 pb-3 px-1 w-full items-center justify-start min-h-[115px] scrollbar-none"></div>
                 </div>
             ` : ''}
         </div>
@@ -407,7 +408,7 @@ function renderGameArea() {
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = createCardHTML(card, hasPlayedThisTurn);
             const cardElement = tempDiv.firstElementChild;
-            if (i > 0) cardElement.classList.add('-ml-8'); 
+            if (i > 0) cardElement.classList.add('-ml-6'); 
             normalRow.appendChild(cardElement);
         });
     }
@@ -417,7 +418,7 @@ function renderGameArea() {
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = createCardHTML(card, hasPlayedThisTurn);
             const cardElement = tempDiv.firstElementChild;
-            if (i > 0) cardElement.classList.add('-ml-8'); 
+            if (i > 0) cardElement.classList.add('-ml-6'); 
             specialRow.appendChild(cardElement);
         });
     }
