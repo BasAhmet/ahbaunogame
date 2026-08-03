@@ -3,7 +3,6 @@ const colors = ['red', 'blue', 'green', 'yellow'];
 const values = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'Pas', 'Yön', '+2'];
 const specialValues = ['Pas', 'Yön', '+2', '+4', 'Joker'];
 
-// Renk ve değer sıralaması için referans
 const colorOrder = { 'red': 1, 'blue': 2, 'green': 3, 'yellow': 4, 'black': 5 };
 const valOrder = { '0':0, '1':1, '2':2, '3':3, '4':4, '5':5, '6':6, '7':7, '8':8, '9':9, 'Pas':10, 'Yön':11, '+2':12, '+4':13, 'Joker':14 };
 
@@ -88,16 +87,15 @@ playerBtns.forEach(btn => {
 document.addEventListener("DOMContentLoaded", () => {
     const endTurnBtn = document.getElementById('endTurnBtn');
     
-    // YENİ: UNO Butonu ve Hamleyi Bitir Butonu çakışmasını önlemek için kapsayıcı (Wrapper)
     if (endTurnBtn && !document.getElementById('unoBtn')) {
         const actionWrapper = document.createElement('div');
-        actionWrapper.className = 'w-full flex flex-col gap-4 mt-6 px-4';
+        actionWrapper.className = 'w-full flex flex-col gap-3 mt-4 px-2';
         
         endTurnBtn.parentNode.insertBefore(actionWrapper, endTurnBtn);
         
         const unoBtn = document.createElement('button');
         unoBtn.id = 'unoBtn';
-        unoBtn.className = 'w-full bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-white font-black py-4 rounded-xl shadow-lg border-2 border-white transition-all transform active:scale-95 text-xl tracking-widest';
+        unoBtn.className = 'w-full bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-white font-black py-3 rounded-xl shadow-lg border-2 border-white transition-all transform active:scale-95 text-lg tracking-widest';
         unoBtn.innerText = 'UNO!';
         
         unoBtn.onclick = () => {
@@ -111,10 +109,9 @@ document.addEventListener("DOMContentLoaded", () => {
             unoBtn.innerText = 'UNO Dendi!';
         };
         
-        // Butonları yeni hiyerarşiye taşıyoruz
         actionWrapper.appendChild(unoBtn);
         actionWrapper.appendChild(endTurnBtn);
-        endTurnBtn.className = "w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl shadow-lg transition-transform active:scale-95 text-lg";
+        endTurnBtn.className = "w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow-lg transition-transform active:scale-95 text-lg";
     }
 });
 
@@ -291,7 +288,7 @@ document.getElementById('drawCardBtn').addEventListener('click', () => {
     renderGameArea();
 });
 
-// --- 4. EKRAN YÖNETİMİ VE YENİ GÖRSEL TASARIMLAR ---
+// --- 4. EKRAN YÖNETİMİ VE DÜZELTİLMİŞ TASARIM ---
 
 function showPassScreen() {
     document.getElementById('gameScreen').classList.add('hidden');
@@ -309,24 +306,23 @@ function showGameScreen() {
 }
 
 function createCardHTML(cardData, isPlayed) {
-    let baseClasses = `relative w-24 h-36 flex-shrink-0 rounded-2xl border-[4px] border-white shadow-xl flex items-center justify-center text-white transition-all transform ${getTailwindColor(cardData.color)}`;
+    let baseClasses = `relative w-20 h-32 flex-shrink-0 rounded-xl border-[3px] border-white shadow-md flex items-center justify-center text-white transition-all transform ${getTailwindColor(cardData.color)}`;
     
     if (isPlayed) {
         baseClasses += ' opacity-50 cursor-not-allowed'; 
     } else {
-        baseClasses += ' cursor-pointer hover:-translate-y-6 hover:shadow-2xl z-10 hover:z-50'; 
+        baseClasses += ' cursor-pointer hover:-translate-y-4 hover:shadow-xl z-10 hover:z-50'; 
     }
 
-    // YENİ: Köşe değerleri (Sol üst ve Sağ alt) ve Merkez tasarım
     const shortVal = cardData.value === 'Joker' ? '★' : cardData.value;
     
     return `
         <div class="${baseClasses}" onclick="${isPlayed ? '' : `playCard(${cardData.originalIndex})`}">
-            <span class="absolute top-2 left-2 text-sm font-black drop-shadow-md">${shortVal}</span>
+            <span class="absolute top-1 left-1.5 text-xs font-black drop-shadow-md">${shortVal}</span>
             <div class="w-4/5 h-5/6 rounded-[50%] border-[2px] border-white/30 flex items-center justify-center bg-black/10 transform -rotate-12 shadow-inner">
-                <span class="transform rotate-12 drop-shadow-md text-3xl font-black">${cardData.value}</span>
+                <span class="transform rotate-12 drop-shadow-md text-2xl font-black">${cardData.value}</span>
             </div>
-            <span class="absolute bottom-2 right-2 text-sm font-black drop-shadow-md rotate-180">${shortVal}</span>
+            <span class="absolute bottom-1 right-1.5 text-xs font-black drop-shadow-md rotate-180">${shortVal}</span>
         </div>
     `;
 }
@@ -338,35 +334,34 @@ function renderGameArea() {
     // Ortadaki kart
     const topCard = discardPile[discardPile.length - 1];
     const topCardDiv = document.getElementById('topCard');
-    topCardDiv.className = `relative w-28 h-40 rounded-2xl border-[6px] border-white shadow-[6px_6px_15px_rgba(0,0,0,0.3)] flex items-center justify-center text-white transform -rotate-3 transition-all ${getTailwindColor(topCard.color)}`;
+    topCardDiv.className = `relative w-24 h-36 rounded-xl border-[4px] border-white shadow-[6px_6px_15px_rgba(0,0,0,0.3)] flex items-center justify-center text-white transform -rotate-3 transition-all ${getTailwindColor(topCard.color)}`;
     const topShortVal = topCard.value === 'Joker' ? '★' : topCard.value;
     topCardDiv.innerHTML = `
-        <span class="absolute top-2 left-2 text-sm font-black drop-shadow-md">${topShortVal}</span>
-        <div class="w-4/5 h-5/6 rounded-[50%] border-[3px] border-white/30 flex items-center justify-center bg-black/10 transform -rotate-12 shadow-inner">
-            <span class="transform rotate-12 drop-shadow-lg text-4xl font-black">${topCard.value}</span>
+        <span class="absolute top-1.5 left-2 text-xs font-black drop-shadow-md">${topShortVal}</span>
+        <div class="w-4/5 h-5/6 rounded-[50%] border-[2px] border-white/30 flex items-center justify-center bg-black/10 transform -rotate-12 shadow-inner">
+            <span class="transform rotate-12 drop-shadow-lg text-3xl font-black">${topCard.value}</span>
         </div>
-        <span class="absolute bottom-2 right-2 text-sm font-black drop-shadow-md rotate-180">${topShortVal}</span>
+        <span class="absolute bottom-1.5 right-2 text-xs font-black drop-shadow-md rotate-180">${topShortVal}</span>
     `;
 
     // Deste (Kart Çekme)
     const drawBtn = document.getElementById('drawCardBtn');
     if (activePenalty > 0 && !hasPlayedThisTurn) {
-        drawBtn.innerHTML = `<span class="text-white font-black text-center text-sm drop-shadow-md">CEZAYI ÇEK<br>(+${activePenalty})</span>`;
+        drawBtn.innerHTML = `<span class="text-white font-black text-center text-xs drop-shadow-md">CEZAYI ÇEK<br>(+${activePenalty})</span>`;
         drawBtn.classList.remove('bg-gray-800');
-        drawBtn.classList.add('bg-red-600', 'animate-pulse', 'border-[4px]', 'border-white', 'shadow-xl');
+        drawBtn.classList.add('bg-red-600', 'animate-pulse', 'border-[3px]', 'border-white', 'shadow-xl');
     } else {
         drawBtn.innerHTML = `
             <div class="w-full h-full rounded-[50%] border-[2px] border-red-500/50 flex items-center justify-center bg-black/30 transform -rotate-12">
-                <span class="text-yellow-400 font-black transform rotate-[-30deg] text-2xl tracking-widest drop-shadow-[2px_2px_0_rgba(255,0,0,1)]">UNO</span>
+                <span class="text-yellow-400 font-black transform rotate-[-30deg] text-xl tracking-widest drop-shadow-[2px_2px_0_rgba(255,0,0,1)]">UNO</span>
             </div>
         `;
-        drawBtn.className = 'w-24 h-36 bg-gray-900 rounded-2xl border-[4px] border-white shadow-lg flex items-center justify-center cursor-pointer hover:-translate-y-2 transition-transform';
+        drawBtn.className = 'w-20 h-32 bg-gray-900 rounded-xl border-[3px] border-white shadow-lg flex items-center justify-center cursor-pointer hover:-translate-y-2 transition-transform';
     }
 
-    // YENİ: Kartları Sıralama ve Gruplama (Renk, Sayı, Normal/Özel)
+    // Eldeki kartların düzenlenmesi
     const handContainer = document.getElementById('playerHand');
     
-    // Orijinal indeksleri kaybetmemek için map ile eşleştiriyoruz
     const handWithOriginalIndices = currentPlayer.hand.map((card, index) => ({ ...card, originalIndex: index }));
     
     const normalCards = [];
@@ -385,38 +380,47 @@ function renderGameArea() {
     normalCards.sort(sortLogic);
     specialCards.sort(sortLogic);
 
-    // Kapsayıcıyı yeniden oluştur
+    // YENİ: Düzgün dikey hiyerarşi (Dışa ve alt butonlara taşmayı önler)
     handContainer.innerHTML = `
-        <div class="w-full max-w-full overflow-hidden mb-6">
-            <p class="text-sm text-gray-500 font-bold mb-2 uppercase tracking-wide">Sayı Kartları</p>
-            <div id="normalCardsRow" class="flex flex-row overflow-x-auto pb-6 pt-4 px-2 w-full custom-scrollbar items-center justify-start sm:justify-center"></div>
-        </div>
-        
-        <div class="w-full max-w-full overflow-hidden">
-            <p class="text-sm text-gray-500 font-bold mb-2 uppercase tracking-wide">Özel Kartlar</p>
-            <div id="specialCardsRow" class="flex flex-row overflow-x-auto pb-6 pt-4 px-2 w-full custom-scrollbar items-center justify-start sm:justify-center"></div>
+        <div class="w-full flex flex-col gap-3">
+            ${normalCards.length > 0 ? `
+                <div class="w-full">
+                    <p class="text-xs text-gray-500 font-bold mb-1 uppercase tracking-wider text-left">Sayı Kartları (${normalCards.length})</p>
+                    <div id="normalCardsRow" class="flex flex-row overflow-x-auto py-2 px-1 w-full items-center justify-start min-h-[140px] scrollbar-none"></div>
+                </div>
+            ` : ''}
+            
+            ${specialCards.length > 0 ? `
+                <div class="w-full">
+                    <p class="text-xs text-gray-500 font-bold mb-1 uppercase tracking-wider text-left">Özel Kartlar (${specialCards.length})</p>
+                    <div id="specialCardsRow" class="flex flex-row overflow-x-auto py-2 px-1 w-full items-center justify-start min-h-[140px] scrollbar-none"></div>
+                </div>
+            ` : ''}
         </div>
     `;
 
     const normalRow = document.getElementById('normalCardsRow');
     const specialRow = document.getElementById('specialCardsRow');
 
-    // Deste yelpazesi hissi için her karta ardışık negatif sol margin (ml) ekliyoruz
-    normalCards.forEach((card, i) => {
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = createCardHTML(card, hasPlayedThisTurn);
-        const cardElement = tempDiv.firstElementChild;
-        if (i > 0) cardElement.classList.add('-ml-10'); // Üst üste binme efekti
-        normalRow.appendChild(cardElement);
-    });
+    if (normalRow) {
+        normalCards.forEach((card, i) => {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = createCardHTML(card, hasPlayedThisTurn);
+            const cardElement = tempDiv.firstElementChild;
+            if (i > 0) cardElement.classList.add('-ml-8'); 
+            normalRow.appendChild(cardElement);
+        });
+    }
 
-    specialCards.forEach((card, i) => {
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = createCardHTML(card, hasPlayedThisTurn);
-        const cardElement = tempDiv.firstElementChild;
-        if (i > 0) cardElement.classList.add('-ml-10'); 
-        specialRow.appendChild(cardElement);
-    });
+    if (specialRow) {
+        specialCards.forEach((card, i) => {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = createCardHTML(card, hasPlayedThisTurn);
+            const cardElement = tempDiv.firstElementChild;
+            if (i > 0) cardElement.classList.add('-ml-8'); 
+            specialRow.appendChild(cardElement);
+        });
+    }
 }
 
 document.getElementById('showCardsBtn').addEventListener('click', showGameScreen);
