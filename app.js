@@ -89,7 +89,8 @@ document.addEventListener("DOMContentLoaded", () => {
     
     if (endTurnBtn && !document.getElementById('unoBtn')) {
         const actionWrapper = document.createElement('div');
-        actionWrapper.className = 'w-full flex flex-col gap-3 mt-4 px-2';
+        // Butonların alanını da PC için biraz ferahlattık
+        actionWrapper.className = 'w-full max-w-lg mx-auto flex flex-col gap-3 mt-4 px-2';
         
         endTurnBtn.parentNode.insertBefore(actionWrapper, endTurnBtn);
         
@@ -288,7 +289,7 @@ document.getElementById('drawCardBtn').addEventListener('click', () => {
     renderGameArea();
 });
 
-// --- 4. EKRAN YÖNETİMİ ---
+// --- 4. EKRAN YÖNETİMİ VE PC ODAKLI YAPI ---
 
 function showPassScreen() {
     document.getElementById('gameScreen').classList.add('hidden');
@@ -300,13 +301,21 @@ function showPassScreen() {
 function showGameScreen() {
     document.getElementById('passScreen').classList.add('hidden');
     document.getElementById('passScreen').classList.remove('flex');
-    document.getElementById('gameScreen').classList.remove('hidden');
-    document.getElementById('gameScreen').classList.add('flex');
+    
+    const gameScreen = document.getElementById('gameScreen');
+    gameScreen.classList.remove('hidden');
+    gameScreen.classList.add('flex');
+    
+    // BİLGİSAYAR İÇİN MÜDAHALE BURADA:
+    // Eğer HTML dosyasında (index.html) max-w-md, max-w-sm gibi daraltıcı sınıflar varsa onları siliyoruz.
+    // Yerine PC için geniş alan sağlayan max-w-6xl ve w-full ekliyoruz.
+    gameScreen.classList.remove('max-w-md', 'max-w-sm', 'max-w-lg');
+    gameScreen.classList.add('w-full', 'max-w-6xl');
+    
     renderGameArea();
 }
 
 function createCardHTML(cardData, isPlayed) {
-    // Relative tasarıma geri dönüldü, en stabil ve temiz duran yapı buydu.
     let baseClasses = `relative w-[64px] min-w-[64px] h-[96px] flex-shrink-0 rounded-lg border-[2px] border-white shadow-md flex items-center justify-center text-white transition-all duration-300 transform ${getTailwindColor(cardData.color)}`;
     
     if (isPlayed) {
@@ -332,29 +341,30 @@ function renderGameArea() {
     const currentPlayer = players[currentPlayerIndex];
     document.getElementById('currentPlayerName').innerText = currentPlayer.id;
 
+    // Ortadaki kart ve deste alanını biraz büyütüp merkeze oturtuyoruz
     const topCard = discardPile[discardPile.length - 1];
     const topCardDiv = document.getElementById('topCard');
-    topCardDiv.className = `relative w-[80px] h-[120px] rounded-xl border-[3px] border-white shadow-[4px_4px_10px_rgba(0,0,0,0.3)] flex items-center justify-center text-white transform -rotate-3 transition-all ${getTailwindColor(topCard.color)}`;
+    topCardDiv.className = `relative w-[90px] h-[135px] rounded-xl border-[3px] border-white shadow-[4px_4px_10px_rgba(0,0,0,0.3)] flex items-center justify-center text-white transform -rotate-3 transition-all ${getTailwindColor(topCard.color)}`;
     const topShortVal = topCard.value === 'Joker' ? '★' : topCard.value;
     topCardDiv.innerHTML = `
-        <span class="absolute top-1.5 left-2 text-xs font-black drop-shadow-md">${topShortVal}</span>
-        <div class="w-[60px] h-[90px] rounded-[50%] border-[2px] border-white/30 flex items-center justify-center bg-black/10 transform -rotate-12 shadow-inner">
-            <span class="transform rotate-12 drop-shadow-lg text-3xl font-black">${topCard.value}</span>
+        <span class="absolute top-2 left-2.5 text-sm font-black drop-shadow-md">${topShortVal}</span>
+        <div class="w-[70px] h-[100px] rounded-[50%] border-[2px] border-white/30 flex items-center justify-center bg-black/10 transform -rotate-12 shadow-inner">
+            <span class="transform rotate-12 drop-shadow-lg text-4xl font-black">${topCard.value}</span>
         </div>
-        <span class="absolute bottom-1.5 right-2 text-xs font-black drop-shadow-md rotate-180">${topShortVal}</span>
+        <span class="absolute bottom-2 right-2.5 text-sm font-black drop-shadow-md rotate-180">${topShortVal}</span>
     `;
 
     const drawBtn = document.getElementById('drawCardBtn');
     if (activePenalty > 0 && !hasPlayedThisTurn) {
-        drawBtn.innerHTML = `<span class="text-white font-black text-center text-[10px] drop-shadow-md">CEZAYI ÇEK<br>(+${activePenalty})</span>`;
-        drawBtn.className = 'relative w-[80px] h-[120px] rounded-xl border-[3px] border-white shadow-xl flex items-center justify-center cursor-pointer bg-red-600 animate-pulse';
+        drawBtn.innerHTML = `<span class="text-white font-black text-center text-[11px] drop-shadow-md">CEZAYI ÇEK<br>(+${activePenalty})</span>`;
+        drawBtn.className = 'relative w-[90px] h-[135px] rounded-xl border-[3px] border-white shadow-xl flex items-center justify-center cursor-pointer bg-red-600 animate-pulse';
     } else {
         drawBtn.innerHTML = `
-            <div class="w-[60px] h-[90px] rounded-[50%] border-[2px] border-red-500/50 flex items-center justify-center bg-black/30 transform -rotate-12">
-                <span class="text-yellow-400 font-black transform rotate-[-30deg] text-lg tracking-widest drop-shadow-[2px_2px_0_rgba(255,0,0,1)]">UNO</span>
+            <div class="w-[70px] h-[100px] rounded-[50%] border-[2px] border-red-500/50 flex items-center justify-center bg-black/30 transform -rotate-12">
+                <span class="text-yellow-400 font-black transform rotate-[-30deg] text-xl tracking-widest drop-shadow-[2px_2px_0_rgba(255,0,0,1)]">UNO</span>
             </div>
         `;
-        drawBtn.className = 'w-[80px] h-[120px] bg-gray-900 rounded-xl border-[3px] border-white shadow-lg flex items-center justify-center cursor-pointer hover:-translate-y-1 transition-transform';
+        drawBtn.className = 'w-[90px] h-[135px] bg-gray-900 rounded-xl border-[3px] border-white shadow-lg flex items-center justify-center cursor-pointer hover:-translate-y-1 transition-transform';
     }
 
     const handContainer = document.getElementById('playerHand');
@@ -376,25 +386,24 @@ function renderGameArea() {
     normalCards.sort(sortLogic);
     specialCards.sort(sortLogic);
 
-    // ÇERÇEVEYİ GENİŞLETME OPERASYONU
-    // 1. pt-6 ve pb-6 ile dikey çerçeve genişletildi (kart zıpladığında üstten kesilmesin diye).
-    // 2. w-max ve pr-24 ile yatay çerçeve sağa doğru devasa şekilde genişletildi.
+    // KART ALANININ PC İÇİN TAM GENİŞLİKTE YAPILANDIRILMASI
+    // Artık 'max-w-md' olmadığı için 'w-full' ekranın ortasını tamamen kaplayacak.
     handContainer.innerHTML = `
-        <div class="w-full flex flex-col gap-4 mb-4">
+        <div class="w-full flex flex-col gap-6 mb-4">
             ${normalCards.length > 0 ? `
                 <div class="w-full">
-                    <p class="text-[11px] text-gray-500 font-bold mb-1 uppercase tracking-wider text-left pl-1">SAYI KARTLARI (${normalCards.length})</p>
-                    <div class="w-full overflow-x-auto scroll-smooth pt-6 pb-6">
-                        <div id="normalCardsRow" class="flex flex-row flex-nowrap items-center justify-start min-h-[100px] w-max pr-24 pl-2"></div>
+                    <p class="text-xs text-gray-500 font-bold mb-2 uppercase tracking-wider text-left pl-2">SAYI KARTLARI (${normalCards.length})</p>
+                    <div class="w-full overflow-x-auto scroll-smooth py-4">
+                        <div id="normalCardsRow" class="flex flex-row flex-nowrap items-center justify-start min-h-[100px] w-max px-2"></div>
                     </div>
                 </div>
             ` : ''}
             
             ${specialCards.length > 0 ? `
                 <div class="w-full">
-                    <p class="text-[11px] text-gray-500 font-bold mb-1 uppercase tracking-wider text-left pl-1">ÖZEL KARTLAR (${specialCards.length})</p>
-                    <div class="w-full overflow-x-auto scroll-smooth pt-6 pb-6">
-                        <div id="specialCardsRow" class="flex flex-row flex-nowrap items-center justify-start min-h-[100px] w-max pr-24 pl-2"></div>
+                    <p class="text-xs text-gray-500 font-bold mb-2 uppercase tracking-wider text-left pl-2">ÖZEL KARTLAR (${specialCards.length})</p>
+                    <div class="w-full overflow-x-auto scroll-smooth py-4">
+                        <div id="specialCardsRow" class="flex flex-row flex-nowrap items-center justify-start min-h-[100px] w-max px-2"></div>
                     </div>
                 </div>
             ` : ''}
@@ -410,14 +419,12 @@ function renderGameArea() {
             tempDiv.innerHTML = createCardHTML(card, hasPlayedThisTurn);
             const cardElement = tempDiv.firstElementChild;
             
-            // O sevdiğimiz eksi boşluk mantığı duruyor, çerçeveyi genişlettiğimiz için artık kesilmeyecek.
             if (i > 0) cardElement.classList.add('-ml-6'); 
             normalRow.appendChild(cardElement);
         });
         
-        // 3. SİHİRLİ DOKUNUŞ: Çerçeveyi açık tutan görünmez blok (Spacer)
         const spacer = document.createElement('div');
-        spacer.className = "w-16 h-1 flex-shrink-0";
+        spacer.className = "w-4 h-1 flex-shrink-0";
         normalRow.appendChild(spacer);
     }
 
@@ -431,9 +438,8 @@ function renderGameArea() {
             specialRow.appendChild(cardElement);
         });
         
-        // Özel kartlar için de görünmez blok (Spacer)
         const spacer = document.createElement('div');
-        spacer.className = "w-16 h-1 flex-shrink-0";
+        spacer.className = "w-4 h-1 flex-shrink-0";
         specialRow.appendChild(spacer);
     }
 }
