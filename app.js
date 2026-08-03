@@ -382,18 +382,18 @@ function renderGameArea() {
 
     // Satır minimum yüksekliği kartlara uyumlu hale getirildi (min-h-[110px])
     handContainer.innerHTML = `
-        <div class="w-full flex flex-col gap-2 mb-2">
+        <div class="w-full flex flex-col gap-4 mb-8">
             ${normalCards.length > 0 ? `
                 <div class="w-full">
-                    <p class="text-[11px] text-gray-500 font-bold mb-0.5 uppercase tracking-wider text-left">SAYI KARTLARI (${normalCards.length})</p>
-                    <div id="normalCardsRow" class="flex flex-row overflow-x-auto pt-1 pb-3 px-1 w-full items-center justify-start min-h-[110px] scrollbar-none"></div>
+                    <p class="text-[11px] text-gray-500 font-bold mb-1 uppercase tracking-wider text-left">SAYI KARTLARI (${normalCards.length})</p>
+                    <div id="normalCardsRow" class="flex flex-row overflow-x-auto pt-2 pb-4 px-1 w-full items-center justify-start min-h-[120px] scrollbar-none"></div>
                 </div>
             ` : ''}
             
             ${specialCards.length > 0 ? `
                 <div class="w-full">
-                    <p class="text-[11px] text-gray-500 font-bold mb-0.5 uppercase tracking-wider text-left">ÖZEL KARTLAR (${specialCards.length})</p>
-                    <div id="specialCardsRow" class="flex flex-row overflow-x-auto pt-1 pb-3 px-1 w-full items-center justify-start min-h-[110px] scrollbar-none"></div>
+                    <p class="text-[11px] text-gray-500 font-bold mb-1 uppercase tracking-wider text-left">ÖZEL KARTLAR (${specialCards.length})</p>
+                    <div id="specialCardsRow" class="flex flex-row overflow-x-auto pt-2 pb-4 px-1 w-full items-center justify-start min-h-[120px] scrollbar-none"></div>
                 </div>
             ` : ''}
         </div>
