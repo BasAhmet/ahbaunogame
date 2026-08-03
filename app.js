@@ -432,7 +432,6 @@ function renderGameArea() {
         spacer.className = "w-8 h-1 flex-shrink-0";
         specialRow.appendChild(spacer);
     }
-    }
 }
 
 document.getElementById('showCardsBtn').addEventListener('click', showGameScreen);
