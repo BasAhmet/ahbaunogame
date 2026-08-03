@@ -306,7 +306,8 @@ function showGameScreen() {
 }
 
 function createCardHTML(cardData, isPlayed) {
-    let baseClasses = `relative w-[64px] h-[96px] flex-shrink-0 rounded-lg border-[2px] border-white shadow-md flex items-center justify-center text-white transition-all transform ${getTailwindColor(cardData.color)}`;
+    // DÜZELTME: Kartların tarayıcı tarafından sıkıştırılmasını engellemek için min-w-[64px] eklendi
+    let baseClasses = `relative w-[64px] min-w-[64px] h-[96px] flex-shrink-0 rounded-lg border-[2px] border-white shadow-md flex items-center justify-center text-white transition-all transform ${getTailwindColor(cardData.color)}`;
     
     if (isPlayed) {
         baseClasses += ' opacity-50 cursor-not-allowed'; 
@@ -375,20 +376,21 @@ function renderGameArea() {
     normalCards.sort(sortLogic);
     specialCards.sort(sortLogic);
 
-    // Kapsayıcılara max-w-full ve min-w-0 eklendi
+    // DÜZELTME: Kapsayıcılara tam genişlik kısıtlaması (style="max-width: 100%; overflow: hidden;") eklendi
+    // DÜZELTME: overflow-y-visible kaldırıldı (yatay scroll'u bozduğu için) ve alan yüksekliği artırıldı (min-h-[130px])
     handContainer.innerHTML = `
-        <div class="w-full max-w-full min-w-0 flex flex-col gap-4 mb-8">
+        <div class="w-full flex flex-col gap-4 mb-8" style="max-width: 100%; overflow: hidden;">
             ${normalCards.length > 0 ? `
-                <div class="w-full max-w-full min-w-0">
+                <div class="w-full" style="max-width: 100%;">
                     <p class="text-[11px] text-gray-500 font-bold mb-1 uppercase tracking-wider text-left pl-1">SAYI KARTLARI (${normalCards.length})</p>
-                    <div id="normalCardsRow" class="flex flex-row flex-nowrap overflow-x-auto overflow-y-visible pt-2 pb-4 px-1 w-full max-w-full items-center justify-start min-h-[120px] scroll-smooth hide-scrollbar"></div>
+                    <div id="normalCardsRow" class="flex flex-row flex-nowrap overflow-x-auto pt-4 pb-6 px-2 w-full items-center justify-start min-h-[130px] scroll-smooth" style="max-width: 100%; -webkit-overflow-scrolling: touch;"></div>
                 </div>
             ` : ''}
             
             ${specialCards.length > 0 ? `
-                <div class="w-full max-w-full min-w-0">
+                <div class="w-full" style="max-width: 100%;">
                     <p class="text-[11px] text-gray-500 font-bold mb-1 uppercase tracking-wider text-left pl-1">ÖZEL KARTLAR (${specialCards.length})</p>
-                    <div id="specialCardsRow" class="flex flex-row flex-nowrap overflow-x-auto overflow-y-visible pt-2 pb-4 px-1 w-full max-w-full items-center justify-start min-h-[120px] scroll-smooth hide-scrollbar"></div>
+                    <div id="specialCardsRow" class="flex flex-row flex-nowrap overflow-x-auto pt-4 pb-6 px-2 w-full items-center justify-start min-h-[130px] scroll-smooth" style="max-width: 100%; -webkit-overflow-scrolling: touch;"></div>
                 </div>
             ` : ''}
         </div>
@@ -406,8 +408,9 @@ function renderGameArea() {
             normalRow.appendChild(cardElement);
         });
         
+        // DÜZELTME: Tarayıcının genişliği eksik hesaplamaması için sona kesin ve geniş bir görünmez boşluk eklendi
         const spacer = document.createElement('div');
-        spacer.className = "w-8 h-1 flex-shrink-0";
+        spacer.className = "min-w-[48px] w-[48px] h-1 flex-shrink-0 bg-transparent";
         normalRow.appendChild(spacer);
     }
 
@@ -421,7 +424,7 @@ function renderGameArea() {
         });
         
         const spacer = document.createElement('div');
-        spacer.className = "w-8 h-1 flex-shrink-0";
+        spacer.className = "min-w-[48px] w-[48px] h-1 flex-shrink-0 bg-transparent";
         specialRow.appendChild(spacer);
     }
 }
