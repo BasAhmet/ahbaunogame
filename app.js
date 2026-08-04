@@ -55,7 +55,7 @@ function getTailwindColor(colorName) {
     }
 }
 
-// --- 2. OYUN KURULUMU, DİNAMİK İSİM GİRİŞİ VE MODAL ENJEKSİYONU ---
+// --- 2. OYUN KURULUMU, DİNAMİK İSİM GİRİŞİ VE RENK SEÇİM MODALI ---
 const playerBtns = document.querySelectorAll('.player-btn');
 const startGameBtn = document.getElementById('startGameBtn');
 
@@ -89,7 +89,6 @@ document.addEventListener("DOMContentLoaded", () => {
     
     if (endTurnBtn && !document.getElementById('unoBtn')) {
         const actionWrapper = document.createElement('div');
-        // Butonların alanını da PC için biraz ferahlattık
         actionWrapper.className = 'w-full max-w-lg mx-auto flex flex-col gap-3 mt-4 px-2';
         
         endTurnBtn.parentNode.insertBefore(actionWrapper, endTurnBtn);
@@ -115,23 +114,20 @@ document.addEventListener("DOMContentLoaded", () => {
         endTurnBtn.className = "w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg shadow-lg transition-transform active:scale-95 text-lg";
     }
 
-    // ŞIK VE TÜRKÇE RENK SEÇME EKRANI (MODAL) OLUŞTURULUYOR
+    // GÖRSEL RENK SEÇİM MODALI (Kendi renklerinde butonlar ile)
     if (!document.getElementById('colorModal')) {
         const modalContainer = document.createElement('div');
         modalContainer.innerHTML = `
             <div id="colorModal" class="hidden fixed inset-0 bg-black/70 z-[100] items-center justify-center backdrop-blur-sm px-4 transition-opacity">
-                <div class="bg-white p-6 md:p-8 rounded-2xl shadow-2xl max-w-sm w-full flex flex-col items-center text-center">
+                <div class="bg-white p-6 md:p-8 rounded-3xl shadow-2xl max-w-md w-full flex flex-col items-center text-center">
                     <h3 class="text-3xl font-black mb-2 text-gray-800">Renk Seçin</h3>
-                    <p class="text-gray-500 mb-6 font-medium text-sm">Joker oynadınız. Lütfen devam edilecek rengi belirleyin.</p>
-                    <select id="colorSelect" class="w-full border-2 border-gray-300 p-4 rounded-xl font-bold text-xl outline-none focus:border-blue-500 mb-6 text-center cursor-pointer bg-gray-50">
-                        <option value="red">Kırmızı</option>
-                        <option value="blue">Mavi</option>
-                        <option value="green">Yeşil</option>
-                        <option value="yellow">Sarı</option>
-                    </select>
-                    <button id="colorConfirmBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl text-xl shadow-lg transition-transform active:scale-95">
-                        Onayla
-                    </button>
+                    <p class="text-gray-500 mb-6 font-medium text-sm">Devam etmek istediğiniz rengi seçin:</p>
+                    <div class="grid grid-cols-2 gap-4 w-full">
+                        <button onclick="window.selectColor('red')" class="bg-gradient-to-br from-red-500 to-red-700 hover:scale-105 active:scale-95 text-white font-black py-6 rounded-2xl shadow-lg border-4 border-white text-xl transition-transform flex items-center justify-center">Kırmızı</button>
+                        <button onclick="window.selectColor('blue')" class="bg-gradient-to-br from-blue-400 to-blue-700 hover:scale-105 active:scale-95 text-white font-black py-6 rounded-2xl shadow-lg border-4 border-white text-xl transition-transform flex items-center justify-center">Mavi</button>
+                        <button onclick="window.selectColor('green')" class="bg-gradient-to-br from-green-500 to-green-700 hover:scale-105 active:scale-95 text-white font-black py-6 rounded-2xl shadow-lg border-4 border-white text-xl transition-transform flex items-center justify-center">Yeşil</button>
+                        <button onclick="window.selectColor('yellow')" class="bg-gradient-to-br from-yellow-400 to-orange-500 hover:scale-105 active:scale-95 text-white font-black py-6 rounded-2xl shadow-lg border-4 border-white text-xl transition-transform flex items-center justify-center">Sarı</button>
+                    </div>
                 </div>
             </div>
         `;
@@ -175,23 +171,27 @@ startGameBtn.addEventListener('click', () => {
 
 // --- 3. OYUN KURALLARI VE MANTIĞI ---
 
-// Yeni: Tarayıcı donduran prompt yerine akıcı onay bekleyen asenkron fonksiyon
+let colorResolveCallback = null;
+
 function askForColor() {
     return new Promise((resolve) => {
+        colorResolveCallback = resolve;
         const modal = document.getElementById('colorModal');
-        const confirmBtn = document.getElementById('colorConfirmBtn');
-        const selectMenu = document.getElementById('colorSelect');
-
         modal.classList.remove('hidden');
         modal.classList.add('flex');
-
-        confirmBtn.onclick = () => {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            resolve(selectMenu.value);
-        };
     });
 }
+
+// Global olarak renk seçim fonksiyonu tanımlanıyor
+window.selectColor = function(color) {
+    const modal = document.getElementById('colorModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    if (colorResolveCallback) {
+        colorResolveCallback(color);
+        colorResolveCallback = null;
+    }
+};
 
 function advanceTurn(steps = 1) {
     hasDrawnThisTurn = false; 
@@ -209,7 +209,6 @@ function advanceTurn(steps = 1) {
     showPassScreen();
 }
 
-// playCard fonksiyonu modal onayı bekleyebilmesi için 'async' yapıldı
 async function playCard(originalIndex) {
     if (hasPlayedThisTurn) {
         alert("Bu elde zaten bir kart oynadınız! Hamleyi tamamlamak için 'Hamleyi Bitir' butonuna basın.");
@@ -225,7 +224,6 @@ async function playCard(originalIndex) {
             if (cardToPlay.value === '+4') {
                 expectedPenaltyType = '+4';
                 activePenalty += 4;
-                // Değişim: prompt yerine şık menüden onay bekliyoruz
                 cardToPlay.color = await askForColor();
             } else if (cardToPlay.value === '+2') {
                 activePenalty += 2;
@@ -252,7 +250,6 @@ async function playCard(originalIndex) {
 
     if (cardToPlay.color === topCard.color || cardToPlay.value === topCard.value || cardToPlay.color === 'black') {
         if (cardToPlay.color === 'black') {
-            // Değişim: prompt yerine şık menüden onay bekliyoruz
             cardToPlay.color = await askForColor();
         }
 
@@ -346,7 +343,6 @@ function showGameScreen() {
     gameScreen.classList.remove('hidden');
     gameScreen.classList.add('flex');
     
-    // BİLGİSAYAR İÇİN MÜDAHALE BURADA:
     gameScreen.classList.remove('max-w-md', 'max-w-sm', 'max-w-lg');
     gameScreen.classList.add('w-full', 'max-w-6xl');
     
@@ -379,7 +375,6 @@ function renderGameArea() {
     const currentPlayer = players[currentPlayerIndex];
     document.getElementById('currentPlayerName').innerText = currentPlayer.id;
 
-    // Ortadaki kart ve deste alanını biraz büyütüp merkeze oturtuyoruz
     const topCard = discardPile[discardPile.length - 1];
     const topCardDiv = document.getElementById('topCard');
     topCardDiv.className = `relative w-[90px] h-[135px] rounded-xl border-[3px] border-white shadow-[4px_4px_10px_rgba(0,0,0,0.3)] flex items-center justify-center text-white transform -rotate-3 transition-all ${getTailwindColor(topCard.color)}`;
@@ -424,7 +419,6 @@ function renderGameArea() {
     normalCards.sort(sortLogic);
     specialCards.sort(sortLogic);
 
-    // KART ALANININ PC İÇİN TAM GENİŞLİKTE YAPILANDIRILMASI
     handContainer.innerHTML = `
         <div class="w-full flex flex-col gap-6 mb-4">
             ${normalCards.length > 0 ? `
