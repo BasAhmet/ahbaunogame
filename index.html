@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr"> 
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,21 +9,26 @@
     <style>
         /* Tıklama hissi için küçük bir animasyon */
         .btn-press:active { transform: scale(0.95); }
+        
+        /* Sadece yatay kaydırma çubuğu için ince ve şık görünüm */
+        ::-webkit-scrollbar { height: 10px; width: 0px; } /* Genişlik 0 yapıldı ki dikey çubuk çıksa bile görünmesin */
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 8px; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 8px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen font-sans text-gray-800 flex items-center justify-center p-4">
+<body class="bg-gray-100 min-h-screen font-sans text-gray-800 flex items-center justify-center py-8 px-4">
 
-    <!-- BİLGİSAYAR İÇİN GENİŞLETİLEN ANA KUTU (lg:max-w-5xl eklendi, overflow-hidden kaldırıldı) -->
-    <div id="app" class="w-full max-w-md md:max-w-3xl lg:max-w-5xl bg-white min-h-[600px] shadow-xl rounded-xl p-6 md:p-10 flex flex-col relative">
+    <!-- UYGULAMA PENCERESİ: Sabit yükseklik tamamen kaldırıldı. İçerik ne kadarsa o kadar uzayacak -->
+    <div id="app" class="w-full max-w-md md:max-w-3xl lg:max-w-5xl bg-white min-h-[600px] shadow-2xl rounded-2xl p-6 md:p-10 flex flex-col relative">
         
         <!-- Başlangıç Ekranı -->
-        <div id="startScreen" class="flex flex-col h-full justify-center items-center">
+        <div id="startScreen" class="flex flex-col h-full justify-center items-center flex-1">
             <h1 class="text-7xl md:text-8xl font-extrabold mb-2"><span class="text-red-500">U</span><span class="text-blue-500">N</span><span class="text-yellow-500">O</span></h1>
             <p class="text-gray-500 mb-8 font-medium text-lg">Pass and Play Edition</p>
             
             <p class="text-lg font-semibold mb-4 text-gray-700">Oyuncu Sayısını Seçin:</p>
             
-            <!-- Butonlar geniş ekranda çok yayılmasın diye max-w-md eklendi -->
             <div class="grid grid-cols-5 gap-2 w-full max-w-md mb-8">
                 <button class="player-btn bg-gray-200 text-gray-800 py-3 rounded-lg font-bold btn-press hover:bg-gray-300" data-players="2">2</button>
                 <button class="player-btn bg-gray-200 text-gray-800 py-3 rounded-lg font-bold btn-press hover:bg-gray-300" data-players="3">3</button>
@@ -38,7 +43,7 @@
         </div>
 
         <!-- Devretme (Pass) Ekranı -->
-        <div id="passScreen" class="hidden flex-col h-full justify-center items-center text-center">
+        <div id="passScreen" class="hidden flex-col h-full justify-center items-center text-center flex-1">
             <h2 id="turnText" class="text-5xl font-bold mb-4 text-gray-800">Sıra: Oyuncu 1</h2>
             <p class="text-gray-500 mb-8 font-medium text-lg">Cihazı alın ve hazır olduğunuzda butona basın. Diğer oyuncuların ekrana bakmadığından emin olun!</p>
             <button id="showCardsBtn" class="w-full max-w-md bg-blue-500 text-white py-4 rounded-xl font-bold text-lg btn-press">
@@ -46,41 +51,36 @@
             </button>
         </div>
 
-        <!-- Oyun Ekranı -->
-        <div id="gameScreen" class="hidden flex-col h-full relative">
-            <div class="text-center font-bold text-xl border-b pb-3 mb-6 text-gray-700" id="currentPlayerName">Oyuncu 1</div>
+        <!-- OYUN EKRANI -->
+        <div id="gameScreen" class="hidden flex-col h-full w-full flex-1">
             
             <!-- Masadaki Kartlar -->
-            <div class="flex justify-center gap-8 mb-8">
-                <!-- Deste -->
+            <div class="text-center font-bold text-xl border-b pb-3 mb-6 text-gray-700" id="currentPlayerName">Oyuncu 1</div>
+            <div class="flex justify-center gap-8 mb-6">
                 <div id="drawCardBtn" class="w-24 h-36 md:w-28 md:h-40 bg-gray-800 rounded-xl border-4 border-gray-300 shadow-md flex items-center justify-center cursor-pointer btn-press">
                     <span class="text-white font-bold transform -rotate-45 text-xl md:text-2xl">UNO</span>
                 </div>
-                <!-- Ortadaki Açık Kart -->
                 <div id="topCard" class="w-24 h-36 md:w-28 md:h-40 rounded-xl border-4 border-white shadow-lg flex items-center justify-center text-4xl md:text-5xl text-white font-extrabold text-center drop-shadow-md">
                     <!-- JS ile dolacak -->
                 </div>
             </div>
 
-            <!-- Oyuncunun Eli -->
-            <div class="flex-1 w-full">
-                <!-- app.js buraya müdahale edip devasa w-max alanını buraya basacak -->
-                <div id="playerHand" class="w-full pb-24">
-                    <!-- JS ile dolacak -->
-                </div>
+            <!-- Oyuncunun Eli (Doğal akışta, dikey sınırlandırma yok) -->
+            <div id="playerHand" class="w-full mb-8">
+                <!-- JS ile dolacak -->
             </div>
 
-            <!-- Hamle Bitirme -->
-            <div class="absolute bottom-0 left-0 w-full bg-white/90 backdrop-blur-sm pt-4 pb-2 flex flex-col items-center justify-center">
+            <!-- Hamle Butonları (Absolute değil, sayfanın akışında en alta mt-auto ile itildi) -->
+            <div class="mt-auto w-full flex flex-col items-center justify-center border-t border-gray-200 pt-6">
                  <button id="endTurnBtn" class="w-full max-w-md bg-green-500 text-white py-4 rounded-xl font-bold text-lg btn-press shadow-lg">
                     Hamleyi Bitir
                 </button>
             </div>
+            
         </div>
 
     </div>
 
-    <!-- Önceki adımda verdiğim en son js kodunu kullanmaya devam etmelisin -->
     <script src="app.js"></script>
 </body>
 </html>
