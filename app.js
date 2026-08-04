@@ -55,7 +55,7 @@ function getTailwindColor(colorName) {
     }
 }
 
-// --- 2. OYUN KURULUMU VE DİNAMİK İSİM GİRİŞİ ---
+// --- 2. OYUN KURULUMU, DİNAMİK İSİM GİRİŞİ VE MODAL ENJEKSİYONU ---
 const playerBtns = document.querySelectorAll('.player-btn');
 const startGameBtn = document.getElementById('startGameBtn');
 
@@ -114,6 +114,29 @@ document.addEventListener("DOMContentLoaded", () => {
         actionWrapper.appendChild(endTurnBtn);
         endTurnBtn.className = "w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg shadow-lg transition-transform active:scale-95 text-lg";
     }
+
+    // ŞIK VE TÜRKÇE RENK SEÇME EKRANI (MODAL) OLUŞTURULUYOR
+    if (!document.getElementById('colorModal')) {
+        const modalContainer = document.createElement('div');
+        modalContainer.innerHTML = `
+            <div id="colorModal" class="hidden fixed inset-0 bg-black/70 z-[100] items-center justify-center backdrop-blur-sm px-4 transition-opacity">
+                <div class="bg-white p-6 md:p-8 rounded-2xl shadow-2xl max-w-sm w-full flex flex-col items-center text-center">
+                    <h3 class="text-3xl font-black mb-2 text-gray-800">Renk Seçin</h3>
+                    <p class="text-gray-500 mb-6 font-medium text-sm">Joker oynadınız. Lütfen devam edilecek rengi belirleyin.</p>
+                    <select id="colorSelect" class="w-full border-2 border-gray-300 p-4 rounded-xl font-bold text-xl outline-none focus:border-blue-500 mb-6 text-center cursor-pointer bg-gray-50">
+                        <option value="red">Kırmızı</option>
+                        <option value="blue">Mavi</option>
+                        <option value="green">Yeşil</option>
+                        <option value="yellow">Sarı</option>
+                    </select>
+                    <button id="colorConfirmBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl text-xl shadow-lg transition-transform active:scale-95">
+                        Onayla
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modalContainer.firstElementChild);
+    }
 });
 
 startGameBtn.addEventListener('click', () => {
@@ -152,6 +175,24 @@ startGameBtn.addEventListener('click', () => {
 
 // --- 3. OYUN KURALLARI VE MANTIĞI ---
 
+// Yeni: Tarayıcı donduran prompt yerine akıcı onay bekleyen asenkron fonksiyon
+function askForColor() {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('colorModal');
+        const confirmBtn = document.getElementById('colorConfirmBtn');
+        const selectMenu = document.getElementById('colorSelect');
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+
+        confirmBtn.onclick = () => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            resolve(selectMenu.value);
+        };
+    });
+}
+
 function advanceTurn(steps = 1) {
     hasDrawnThisTurn = false; 
     hasPlayedThisTurn = false;
@@ -168,7 +209,8 @@ function advanceTurn(steps = 1) {
     showPassScreen();
 }
 
-function playCard(originalIndex) {
+// playCard fonksiyonu modal onayı bekleyebilmesi için 'async' yapıldı
+async function playCard(originalIndex) {
     if (hasPlayedThisTurn) {
         alert("Bu elde zaten bir kart oynadınız! Hamleyi tamamlamak için 'Hamleyi Bitir' butonuna basın.");
         return;
@@ -183,9 +225,8 @@ function playCard(originalIndex) {
             if (cardToPlay.value === '+4') {
                 expectedPenaltyType = '+4';
                 activePenalty += 4;
-                let secilenRenk = prompt("Rengi değiştirin: 'red', 'blue', 'green', 'yellow' yazın.").toLowerCase().trim();
-                const gecerliRenkler = ['red', 'blue', 'green', 'yellow'];
-                cardToPlay.color = gecerliRenkler.includes(secilenRenk) ? secilenRenk : 'red';
+                // Değişim: prompt yerine şık menüden onay bekliyoruz
+                cardToPlay.color = await askForColor();
             } else if (cardToPlay.value === '+2') {
                 activePenalty += 2;
             }
@@ -211,9 +252,8 @@ function playCard(originalIndex) {
 
     if (cardToPlay.color === topCard.color || cardToPlay.value === topCard.value || cardToPlay.color === 'black') {
         if (cardToPlay.color === 'black') {
-            let secilenRenk = prompt("Rengi değiştirin: 'red', 'blue', 'green', 'yellow' yazın.").toLowerCase().trim();
-            const gecerliRenkler = ['red', 'blue', 'green', 'yellow'];
-            cardToPlay.color = gecerliRenkler.includes(secilenRenk) ? secilenRenk : 'red';
+            // Değişim: prompt yerine şık menüden onay bekliyoruz
+            cardToPlay.color = await askForColor();
         }
 
         currentPlayer.hand.splice(originalIndex, 1);
@@ -307,8 +347,6 @@ function showGameScreen() {
     gameScreen.classList.add('flex');
     
     // BİLGİSAYAR İÇİN MÜDAHALE BURADA:
-    // Eğer HTML dosyasında (index.html) max-w-md, max-w-sm gibi daraltıcı sınıflar varsa onları siliyoruz.
-    // Yerine PC için geniş alan sağlayan max-w-6xl ve w-full ekliyoruz.
     gameScreen.classList.remove('max-w-md', 'max-w-sm', 'max-w-lg');
     gameScreen.classList.add('w-full', 'max-w-6xl');
     
@@ -387,7 +425,6 @@ function renderGameArea() {
     specialCards.sort(sortLogic);
 
     // KART ALANININ PC İÇİN TAM GENİŞLİKTE YAPILANDIRILMASI
-    // Artık 'max-w-md' olmadığı için 'w-full' ekranın ortasını tamamen kaplayacak.
     handContainer.innerHTML = `
         <div class="w-full flex flex-col gap-6 mb-4">
             ${normalCards.length > 0 ? `
