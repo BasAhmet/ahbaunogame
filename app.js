@@ -20,6 +20,7 @@ let pendingSteps = 1;
 
 let activePenalty = 0; 
 let expectedPenaltyType = null; 
+let lastTurnEvents = ""; // YENİ: Diğer oyuncuya gösterilecek mesajları tutar
 
 function createDeck() {
     let newDeck = [];
@@ -107,6 +108,9 @@ document.addEventListener("DOMContentLoaded", () => {
             hasSaidUno = true;
             unoBtn.classList.add('opacity-50', 'cursor-not-allowed');
             unoBtn.innerText = 'UNO Dendi!';
+            
+            // YENİ: UNO diyen oyuncuyu diğer turdaki oyuncuya bildirmek için mesaja yazıyoruz.
+            lastTurnEvents = `🚨 DİKKAT: ${currentPlayer.id} UNO dedi! 🚨`;
         };
         
         actionWrapper.appendChild(unoBtn);
@@ -114,7 +118,6 @@ document.addEventListener("DOMContentLoaded", () => {
         endTurnBtn.className = "w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg shadow-lg transition-transform active:scale-95 text-lg";
     }
 
-    // GÖRSEL RENK SEÇİM MODALI (Kendi renklerinde butonlar ile)
     if (!document.getElementById('colorModal')) {
         const modalContainer = document.createElement('div');
         modalContainer.innerHTML = `
@@ -164,6 +167,7 @@ startGameBtn.addEventListener('click', () => {
     pendingSteps = 1;
     activePenalty = 0;
     expectedPenaltyType = null;
+    lastTurnEvents = ""; // Oyuna başlarken bildirimleri temizle
 
     document.getElementById('startScreen').classList.add('hidden');
     showPassScreen(); 
@@ -182,7 +186,6 @@ function askForColor() {
     });
 }
 
-// Global olarak renk seçim fonksiyonu tanımlanıyor
 window.selectColor = function(color) {
     const modal = document.getElementById('colorModal');
     modal.classList.add('hidden');
@@ -333,6 +336,25 @@ function showPassScreen() {
     document.getElementById('passScreen').classList.remove('hidden');
     document.getElementById('passScreen').classList.add('flex');
     document.getElementById('turnText').innerText = `Sıra: ${players[currentPlayerIndex].id}`;
+
+    // YENİ: Eğer bir olay/bildirim varsa geçiş ekranına kocaman bir uyarı basıyoruz
+    let eventDiv = document.getElementById('passScreenEvent');
+    if (!eventDiv) {
+        eventDiv = document.createElement('div');
+        eventDiv.id = 'passScreenEvent';
+        eventDiv.className = 'mt-6 bg-red-600 text-white font-black text-lg md:text-2xl px-6 py-4 rounded-2xl shadow-2xl animate-bounce text-center border-4 border-white mx-4';
+        const turnText = document.getElementById('turnText');
+        turnText.parentNode.insertBefore(eventDiv, turnText.nextSibling);
+    }
+
+    // Mesaj doluysa göster ve gösterdikten sonra bir daha çıkmaması için boşalt
+    if (lastTurnEvents !== "") {
+        eventDiv.innerText = lastTurnEvents;
+        eventDiv.classList.remove('hidden');
+        lastTurnEvents = ""; 
+    } else {
+        eventDiv.classList.add('hidden');
+    }
 }
 
 function showGameScreen() {
@@ -491,6 +513,8 @@ document.getElementById('endTurnBtn').addEventListener('click', () => {
     const currentPlayer = players[currentPlayerIndex];
     if (currentPlayer.hand.length === 1 && !hasSaidUno) {
         alert(`🚨 YAKALANDIN ${currentPlayer.id}! UNO demeyi unuttuğun için 2 kart ceza çekiyorsun!`);
+        // YENİ: Ceza yiyen arkadaşı diğer tura ispiyonluyoruz :)
+        lastTurnEvents = `⚠️ GÜLME KRİZİ: ${currentPlayer.id} UNO demeyi unuttuğu için ceza yedi! ⚠️`;
         for (let i = 0; i < 2; i++) {
             if (deck.length === 0) {
                 const topCard = discardPile.pop();
