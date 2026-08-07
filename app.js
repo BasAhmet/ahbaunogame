@@ -1,3 +1,14 @@
+const firebaseConfig = {
+    apiKey: "AIzaSyCEH0KcvuCJtOuGZrsMit1r9nZ_ZkjxDHU",
+    authDomain: "ahbaunogame.firebaseapp.com",
+    databaseURL: "https://ahbaunogame-default-rtdb.europe-west1.firebasedatabase.app/",
+    projectId: "ahbaunogame",
+    storageBucket: "ahbaunogame.firebasestorage.app",
+    messagingSenderId: "477798849645",
+    appId: "1:477798849645:web:0510a493393850676eb364",
+    measurementId: "G-HR68HHD3SN"
+};
+
 // --- 1. KART DESTE SİSTEMİ ---
 const colors = ['red', 'blue', 'green', 'yellow'];
 const values = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'Pas', 'Yön', '+2'];
