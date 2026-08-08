@@ -14,6 +14,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+let myAvatar = '🐶'; // Varsayılan avatar
 
 // --- 1. KART DESTE SİSTEMİ ---
 const colors = ['red', 'blue', 'green', 'yellow'];
