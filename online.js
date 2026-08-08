@@ -14,11 +14,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-// Global Oyun Değişkenleri Bölümüne Ekle
-let myPlayerName = "";
-let currentRoomPin = "";
-let gameData = null;
-let myAvatar = '🐶'; // Varsayılan avatar
 
 // Avatar Seçim Fonksiyonu
 window.selectAvatar = function(emoji, btnElement) {
@@ -75,9 +70,10 @@ function getTailwindColor(colorName) {
 }
 
 // --- 2. GLOBAL OYUN DEĞİŞKENLERİ ---
-let myPlayerName = "";
 let currentRoomPin = "";
 let gameData = null; 
+let myPlayerName = "";
+let myAvatar = '🐶'; // Varsayılan avatar
 
 // --- 3. LOBİ VE ODA YÖNETİMİ ---
 document.getElementById('createRoomBtn').addEventListener('click', async () => {
