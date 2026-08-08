@@ -93,6 +93,18 @@
         </div>
 
     </div>
+    <!-- Renk Seçim Modalı -->
+    <div id="colorModal" class="hidden fixed inset-0 bg-white/80 z-50 items-center justify-center backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center gap-6 border-4 border-yellow-300 transform transition-all">
+            <h2 class="text-3xl font-black text-gray-800 tracking-wide text-center">Renk Seç!</h2>
+            <div class="grid grid-cols-2 gap-6">
+                <button onclick="selectColor('red')" class="w-24 h-24 bg-red-500 rounded-2xl shadow-lg border-4 border-red-200 hover:scale-110 active:scale-95 transition-transform cursor-pointer"></button>
+                <button onclick="selectColor('blue')" class="w-24 h-24 bg-blue-500 rounded-2xl shadow-lg border-4 border-blue-200 hover:scale-110 active:scale-95 transition-transform cursor-pointer"></button>
+                <button onclick="selectColor('green')" class="w-24 h-24 bg-green-500 rounded-2xl shadow-lg border-4 border-green-200 hover:scale-110 active:scale-95 transition-transform cursor-pointer"></button>
+                <button onclick="selectColor('yellow')" class="w-24 h-24 bg-yellow-400 rounded-2xl shadow-lg border-4 border-yellow-100 hover:scale-110 active:scale-95 transition-transform cursor-pointer"></button>
+            </div>
+        </div>
+    </div>
 
     <script type="module" src="online.js"></script>
 </body>
