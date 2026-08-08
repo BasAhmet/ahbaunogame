@@ -14,6 +14,10 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+// Global Oyun Değişkenleri Bölümüne Ekle
+let myPlayerName = "";
+let currentRoomPin = "";
+let gameData = null;
 let myAvatar = '🐶'; // Varsayılan avatar
 
 // Avatar Seçim Fonksiyonu
@@ -135,7 +139,7 @@ document.getElementById('joinRoomBtn').addEventListener('click', async () => {
 
         myPlayerName = nameInput;
         let newPlayerHand = roomData.deck.splice(-7, 7);
-        roomData.players.push({ id: myPlayerName, hand: newPlayerHand });
+        roomData.players.push({ id: myPlayerName, avatar: myAvatar, hand: newPlayerHand });
 
         await update(roomRef, {
             players: roomData.players,
@@ -404,6 +408,15 @@ function renderGameArea() {
 
     const currentTurnPlayer = gameData.players[gameData.currentPlayerIndex];
     const isMyTurn = currentTurnPlayer.id === myPlayerName;
+
+    // Avatarı da içerecek şekilde güncellendi:
+    const avatarToDisplay = currentTurnPlayer.avatar || '👤'; // Eğer eski oyun kaldıysa varsayılan göstersin
+    
+    const infoText = isMyTurn 
+        ? `<div class="flex items-center justify-center gap-2"><span class="text-3xl">${avatarToDisplay}</span> <span class="text-green-500 font-black text-2xl tracking-wide">SENİN SIRAN!</span></div>` 
+        : `<div class="flex items-center justify-center gap-2"><span class="text-3xl">${avatarToDisplay}</span> <span class="text-blue-600 font-bold text-xl">Sıra: ${currentTurnPlayer.id}</span></div>`;
+        
+    document.getElementById('currentPlayerName').innerHTML = infoText;
     
     const infoText = isMyTurn ? `<span class="text-green-400">SENİN SIRAN!</span>` : `<span class="text-yellow-400">Sıra: ${currentTurnPlayer.id}</span>`;
     document.getElementById('currentPlayerName').innerHTML = infoText;
