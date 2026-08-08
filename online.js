@@ -414,8 +414,8 @@ function renderGameArea() {
         
     document.getElementById('currentPlayerName').innerHTML = infoText;
     
-    const infoText = isMyTurn ? `<span class="text-green-400">SENİN SIRAN!</span>` : `<span class="text-yellow-400">Sıra: ${currentTurnPlayer.id}</span>`;
-    document.getElementById('currentPlayerName').innerHTML = infoText;
+    //const infoText = isMyTurn ? `<span class="text-green-400">SENİN SIRAN!</span>` : `<span class="text-yellow-400">Sıra: ${currentTurnPlayer.id}</span>`;
+    //document.getElementById('currentPlayerName').innerHTML = infoText;
 
     if (gameData.lastEventMessage) {
         let notifDiv = document.getElementById('globalNotification');
