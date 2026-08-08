@@ -16,6 +16,19 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 let myAvatar = '🐶'; // Varsayılan avatar
 
+// Avatar Seçim Fonksiyonu
+window.selectAvatar = function(emoji, btnElement) {
+    myAvatar = emoji;
+    // Tüm butonların seçim efektini temizle
+    document.querySelectorAll('.avatar-btn').forEach(btn => {
+        btn.classList.remove('border-yellow-500', 'bg-yellow-50', 'scale-110');
+        btn.classList.add('border-gray-200', 'bg-white');
+    });
+    // Seçileni vurgula
+    btnElement.classList.remove('border-gray-200', 'bg-white');
+    btnElement.classList.add('border-yellow-500', 'bg-yellow-50', 'scale-110');
+};
+
 // --- 1. KART DESTE SİSTEMİ ---
 const colors = ['red', 'blue', 'green', 'yellow'];
 const values = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'Pas', 'Yön', '+2'];
@@ -82,7 +95,7 @@ document.getElementById('createRoomBtn').addEventListener('click', async () => {
     const roomRef = ref(db, 'rooms/' + currentRoomPin);
     const initialData = {
         status: 'waiting',
-        players: [{ id: myPlayerName, hand: deck.splice(-7, 7) }],
+        players: [{ id: myPlayerName, avatar: myAvatar, hand: deck.splice(-7, 7) }],
         deck: deck,
         discardPile: discardPile,
         currentPlayerIndex: 0,
